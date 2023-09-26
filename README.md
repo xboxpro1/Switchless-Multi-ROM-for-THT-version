@@ -1,17 +1,34 @@
-# Retroninja Switchless Multi-ROM for 2364 ROMs
+# CBM Switchless Multi-ROM for 2364 & 27128 & 27256 ROMs
 
-<img src="rev3\images\pcb_render.png" alt="3D rendering" width="800"/><br/>
+This is a fork, rework and combination of two repositories from RetroNynjah.
 
-A switchless multi-ROM for 2364 ROM (24-pin) type applications. The switch is controlled by an MCU that is picking up predefined magic words on the data bus.  
+<https://github.com/RetroNynjah/Switchless-Multi-ROM-for-2364>
+
+<https://github.com/RetroNynjah/Switchless-Multi-ROM-for-27128-27256>
+
+I would like to thank RetroNynjah for the brilliant idea and excellent work.
+After a long search on the internet, there is finally the perfect ROM switcher.
+
+<img src="images\cbm-multirom-transparent.png" alt="3D rendering" width="800"/><br/>
+
+A switchless multi-ROM for 2364 ROM (24-pin) and 27128/27256 ROM (28-pin) type applications. 
+The switch is controlled by an MCU that is picking up predefined magic words on the data bus.  
 
 Example use cases:
 * Menu driven Kernal switch for Commodore VIC-20
 * Menu driven Kernal switch for Commodore C64 (longboards)
 * Menu driven Kernal switch for Commodore C64C (shortboard)
+* Menu driven Kernal switch for Commodore C128
 * You tell me
 
-Check the Applications folder for examples on how to use it for the use cases above.
 
-Check the Technical Guide for a general technical description, build instructions and BOM.
+Check the General Guide for a general description and BOM.
 
-<img src="rev3\images\pcb_top.png" alt="Rendered top view" height="800"/>  <img src="rev3\images\pcb_bottom.png" alt="Rendered bottom view" height="800"/><br/>
+Check the Application Guide in the applications folder for examples on how to use it for the use cases above.
+
+Check the Hardware Guide in the hardware folder for a general technical description and build instructions.
+
+A short video that shows how it works can be seen here. 
+<https://youtu.be/isT9-QBMzEc?si=csgdmX4p8TZYezGX>
+
+<img src="images\cbm-multirom-front-assembled.png" alt="Rendered top view" height="400"/>  <img src="images\cbm-multirom-back-assembled.png" alt="Rendered bottom view" height="400"/><br/>
