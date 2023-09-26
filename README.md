@@ -22,11 +22,11 @@ Example use cases:
 * You tell me
 
 
-Check the General Guide for a general description and BOM.
+Check the General Info for a general description and BOM.
 
-Check the Application Guide in the applications folder for examples on how to use it for the use cases above.
+Check the Application Info in the applications folder for examples on how to use it for the use cases above.
 
-Check the Hardware Guide in the hardware folder for a general technical description and build instructions.
+Check the Hardware Info in the hardware folder for a general technical description and build instructions.
 
 A short video that shows how it works can be seen here. 
 <https://youtu.be/isT9-QBMzEc?si=csgdmX4p8TZYezGX>
