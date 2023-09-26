@@ -1,17 +1,10 @@
-# Retroninja Switchless Multi-ROM for 2364 ROMs
+# CBM Switchless Multi-ROM for 2364 & 27128 & 27256 ROMs
 
-<img src="rev3\images\pcb_render.png" alt="3D rendering" width="800"/><br/>
+This is a fork, rework and combination of two repositories from RetroNynjah.
 
-A switchless multi-ROM for 2364 ROM (24-pin) type applications. The switch is controlled by an MCU that is picking up predefined magic words on the data bus.  
+<img src="pcb-equipped.jpg" alt="3D rendering" width="300"/><img src="keyboard-cutout.jpg" alt="3D rendering" width="300"/>
 
-Example use cases:
-* Menu driven Kernal switch for Commodore VIC-20
-* Menu driven Kernal switch for Commodore C64 (longboards)
-* Menu driven Kernal switch for Commodore C64C (shortboard)
-* You tell me
+Here are the pictures of a fully assembled PCB that is installed in a C64C.
+The keyboard's plastic frame had to be cut.
 
-Check the Applications folder for examples on how to use it for the use cases above.
-
-Check the Technical Guide for a general technical description, build instructions and BOM.
-
-<img src="rev3\images\pcb_top.png" alt="Rendered top view" height="800"/>  <img src="rev3\images\pcb_bottom.png" alt="Rendered bottom view" height="800"/><br/>
+Check the Hardware-Info.pdf in the hardware folder for a general technical description and build instructions.
