@@ -23,8 +23,8 @@
 #define C128DCR 1004
 
 // define atmega pins
-#define ledPin 8          					// LED pin
-#define pin8 8           				    // pin 8 (free to use if LED is disabled)
+#define ledPin 8                    // LED pin
+#define pin8 8                      // pin 8 (free to use if LED is disabled)
 #define pin9 9                      // pin 9 (free to use)
 #define pin10 10                    // pin 10 (free to use)
 #define resetPin 11                 // reset pin
