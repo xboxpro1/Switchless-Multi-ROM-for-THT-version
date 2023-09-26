@@ -2,5 +2,5 @@
 
 This is a fork, rework and combination of two repositories from RetroNynjah.
 
-Check the Application Guide in the applications folder for examples on how to use the tools.
+Check the Application Info in the applications folder for examples on how to use the tools.
 
