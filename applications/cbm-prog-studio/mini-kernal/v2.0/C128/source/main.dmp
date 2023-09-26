@@ -1,0 +1,1120 @@
+00001  0000             ; ========================================
+00002  0001             ; PROJECT    C128 KERNAL MENU
+00003  0001             ; TARGET     COMMODORE 128
+00004  0001             ; COMMENTS   CUSTOM MENU KERNAL FOR USE WITH THE THT MULTI-ROM AS A MENU DRIVEN KERNAL SWITCH IN A C128
+00005  0001             ; COMMENTS   MODIFIED BY XBOXPRO1
+00006  0001             ; AUTHOR     RETRONINJA
+00007  0001             ; ========================================
+00008  0001             ; VERISON HISTORY
+00009  0001             ; 1.0   FIRST VERSION FOR C128
+00010  0001             ; 1.1   ADDED 80 COLUMN MENU AND A SPRITE ON 40 COLUMN SCREEN
+00011  0001             ; 1.2   CLEANED UP CODE. CLEAR SCREENS TO AVOID GARBAGE DURING RESET
+00012  0001             ; 1.4   ADDED COMMAND FOR C128DCR COMBO SWITCH. STEPPED UP VERSION TO ALIGN VERSION WITH C64 MENU KERNAL.
+00013  0001             ; 1.5   SCAN KEYS ONCE PER SCREEN REFRESH TO DEBOUNCE KEYS
+00014  0001             ; 2.0   RENAMED SWITCHER, CHANGED ASCII COMMAND, DISABLED SPRITE
+00015  0001             
+00016  0001             CHARSET    2
+00017  0001             NOLOADADDR 
+00018  0001             GENERATETO C128MINIKERNAL.BIN
+00019  0001             
+00020  0001             D6510      = $00
+00021  0001             R6510      = $01
+00022  0001             BANK       = $02
+00023  0001             
+00024  0001             PALNTS     = $0A03
+00025  0001             VICREG     = $D000
+00026  0001             MMU_LO     = $D500
+00027  0001             MMUMCR     = $D505
+00028  0001             VDCADR     = $D600
+00029  0001             VDCDAT     = $D601
+00030  0001             
+00031  0001             PORTA      = $DC00
+00032  0001             PORTB      = $DC01
+00033  0001             EXTKB      = $D02F
+00034  0001             DDRA       = $DC02
+00035  0001             DDRB       = $DC03
+00036  0001             MMUCR      = $FF00
+00037  0001             
+00038  0001             
+00039  0001             ; VDC COLORS
+00040  0001             VDC_BLACK  = 0
+00041  0001             VDC_LIGHTBLACK = 1
+00042  0001             VDC_DARKBLUE = 2
+00043  0001             VDC_LIGHTBLUE = 3
+00044  0001             VDC_DARKGREEN = 4
+00045  0001             VDC_LIGHTGREEN = 5
+00046  0001             VDC_DARKCYAN = 6
+00047  0001             VDC_LIGHTCYAN = 7
+00048  0001             VDC_DARKRED = 8
+00049  0001             VDC_LIGHTRED = 9
+00050  0001             VDC_DARKPURPLE = 10
+00051  0001             VDC_LIGHTPURPLE = 11
+00052  0001             VDC_DARKYELLOW = 12
+00053  0001             VDC_LIGHTYELLOW = 13
+00054  0001             VDC_DARKWHITE = 14
+00055  0001             VDC_WHITE  = 15
+00056  0001             
+00057  0001             ; VDC ATTRIBUTES
+00058  0001             VDC_BLINK  = 16
+00059  0001             VDC_UNDERLINE = 32
+00060  0001             VDC_REVERSE = 64
+00061  0001             VDC_ALTERNATE = 128
+00062  0001             ; COPY CHARACTER SET TO VDC ADDRESS $2000
+00063  0001             ; VDCCHARS FROM_START_ADDRESS, FROM_END_ADDR
+00064  0001             DEFM       VDCCHARS
+00065  0001                        LDA #</1
+00066  0001                        LDY #>/1
+00067  0001                        STA $DA         ; START OF DATA LO BYTE
+00068  0001                        STY $DB         ; START OF DATA HI BYTE
+00069  0001                        LDA #>/2
+00070  0001                        STA $DE         ; END OF DATA HI BYTE
+00071  0001             
+00072  0001                        LDX #28         ; VDC RAM CHAR ADDESS = $2000
+00073  0001                        LDA #$20
+00074  0001                        JSR VDCREG_W
+00075  0001             
+00076  0001                        LDX #18         ; VDC RAM (2000) HI BYTE
+00077  0001                        LDA #$20
+00078  0001                        JSR VDCREG_W
+00079  0001                        LDX #19         ; VDC RAM (2000) LO BYTE
+00080  0001                        LDA #$00
+00081  0001                        JSR VDCREG_W
+00082  0001             
+00083  0001                        LDY #0
+00084  0001             LOOP
+00085  0001                        LDX #31
+00086  0001             @1         ; COPY 8 BYTES OF CHARACTER DATA FROM RAM TO VDC
+00087  0001                        LDA ($DA),Y
+00088  0001                        JSR VDCREG_W
+00089  0001                        INY
+00090  0001                        CPY #8
+00091  0001                        BCC @1
+00092  0001             
+00093  0001                        LDA #0
+00094  0001             @2         ; ADD 8 EMPTY LINES TO FILL ALL 16 VDC CHARACTER LINES
+00095  0001                        JSR VDCREG_W
+00096  0001                        DEY
+00097  0001                        BNE @2
+00098  0001             
+00099  0001                        CLC
+00100  0001                        LDA $DA
+00101  0001                        ADC #8
+00102  0001                        STA $DA
+00103  0001                        BCC LOOP
+00104  0001                        INC $DB
+00105  0001                        LDA $DB
+00106  0001                        CMP $DE
+00107  0001                        BNE LOOP
+00108  0001                        ENDM
+00109  0001             
+00110  0001             
+00111  0001             ; VDCMENU FROM_START_ADDRESS
+00112  0001             ; COPIES 25X40 CHARS PLUS PADDING FROM FROM_START_ADDRESS TO $0000-$07FF
+00113  0001             DEFM       VDCMENU
+00114  0001                        LDA #</1
+00115  0001                        LDY #>/1
+00116  0001                        STA $DA         ; START OF DATA LO BYTE
+00117  0001                        STY $DB         ; START OF DATA HI BYTE
+00118  0001                        TYA
+00119  0001                        CLC
+00120  0001                        ADC #08
+00121  0001                        STA $DE      ; END OF DATA HI BYTE
+00122  0001             
+00123  0001                        LDX #18         ; VDC RAM (0000) HI BYTE
+00124  0001                        LDA #$00
+00125  0001                        JSR VDCREG_W
+00126  0001                        LDX #19         ; VDC RAM (0000) LO BYTE
+00127  0001                        LDA #$00
+00128  0001                        JSR VDCREG_W
+00129  0001             
+00130  0001             @ROWLOOP
+00131  0001                        ; ADD 20 SPACES BEFORE TEXT
+00132  0001                        LDA #$20
+00133  0001                        LDY #20
+00134  0001                        JSR VDCFILL
+00135  0001                        LDX #$00
+00136  0001                        LDY #$00
+00137  0001             @CHARLOOP
+00138  0001                        ; COPY 40 CHARACTERS OF TEXT TO SCREEN
+00139  0001                        CPY #40
+00140  0001                        BEQ @ENDPADDING
+00141  0001                        LDA ($DA),Y
+00142  0001                        LDX #31
+00143  0001                        JSR VDCREG_W
+00144  0001                        INY
+00145  0001                        CPY #40
+00146  0001                        BNE @CHARLOOP
+00147  0001             @ENDPADDING 
+00148  0001                        ; ADD 20 SPACES AFTER TEXT
+00149  0001                        LDA #$20
+00150  0001                        LDY #20
+00151  0001                        JSR VDCFILL
+00152  0001                        LDA $DA
+00153  0001                        CLC
+00154  0001                        ADC #40
+00155  0001                        STA $DA
+00156  0001                        BCC @ROWLOOP
+00157  0001                        INC $DB
+00158  0001                        LDA $DB
+00159  0001                        CMP $DE        ; REACHED END OF DATA ?
+00160  0001                        BNE @ROWLOOP
+00161  0001                        ENDM
+00162  0001             
+00163  0001             
+00164  0001                        
+00165  0001             
+00166  0001             KRNIMGS    = 4     ; NUMBER OF KERNAL IMAGES IN MENU/ROM 1..9 WHERE 1 WOULD BE QUITE POINTLESS :)
+00167  0001                        ; IT WOULD BE POSSIBLE TO HAVE MORE KERNALS IF MENU CODE IS MODIFIED.
+00168  0001             BODCOL     = $0D   ; BORDER COLOR (C128 DEFAULT = $0D)
+00169  0001             BAKCOL     = $0B   ; BACKGROUND COLOR (C128 DEFAULT = $0B)
+00170  0001             CHRC       = $0D   ; MNUTXT COLOR (C128 DEFAULT = #$0D )
+00171  0001             CHRCHL     = $01   ; MENU HIGHLIGHTEDTEXT COLOR
+00172  0001             VDC_BAKCOL = VDC_DARKWHITE      ; 80-COL BACKGROUND COLOR
+00173  0001             VDC_CHRC   = VDC_LIGHTBLACK     ; 80-COL MENU TEXT COLOR
+00174  0001             VDC_CHRCHL = VDC_WHITE          ; 80-COL HIGHLIGHTED TEXT COLOR
+00175  0001             
+00176  0001             SHIFTS     = $1200 ; 0 = SHIFT NOT HELD, 1 = SHIFT HELD
+00177  0001             LASTKEY    = $1201 ; LAST KEY PRESSED. USED TO PREVENT KEY REPEAT
+00178  0001             KRNIMG     = $1202
+00179  0001             CMDADDR    = $1203
+00180  0001             
+00181  0001             *=$C000
+00182  C000  00                    BYTE $00 ; MAKE FILE START ATT C000 TO HAVE 16KB SIZE
+00183  C001             
+00184  C001             
+00185  C001             *=$D000
+00186  D000             INCBIN     Z80BIOS.BIN ; Z80 BIOS $D000-$DFFF
+00187  E000             
+00188  E000             
+00189  E000             *=$E000
+00190  E000             START      
+00191  E000  A2 FF                 LDX #$FF        ;NORMAL /RESET ENTRY
+00192  E002  78                    SEI
+00193  E003  9A                    TXS
+00194  E004  D8                    CLD
+00195  E005  20 38 E6              JSR MMUINIT
+00196  E008  20 54 E6              JSR PALNTSC
+00197  E00B             
+00198  E00B  A9 E3                 LDA #%11100011  ; INITIALIZE 6510 PORT: KYBD, CASSETTE, VIC CONTROL
+00199  E00D  85 01                 STA R6510
+00200  E00F  A9 2F                 LDA #%00101111  ; 6510 DDR
+00201  E011  85 00                 STA D6510
+00202  E013             
+00203  E013  20 B6 E7              JSR VICINIT
+00204  E016                        ;JSR VICCLEAR
+00205  E016             
+00206  E016                        ; VDC INITIALIZTION
+00207  E016  20 36 E7              JSR VDCSTART    ; INITIALIZE VDC REGISTERS
+00208  E019             
+00209  E019             
+00210  E019  A9 41                 LDA #<CHARDATA
+00211  E01B  A0 E8                 LDY #>CHARDATA
+00212  E01D  85 DA                 STA $DA
+00213  E01F  84 DB                 STY $DB
+00214  E021  A9 F8                 LDA #>CHARDATA_END
+00215  E023  85 DE                 STA $DE
+00216  E025             
+00217  E025  A2 1C                 LDX #28
+00218  E027  A9 20                 LDA #$20
+00219  E029  20 B3 E6              JSR VDCREG_W
+00220  E02C             
+00221  E02C  A2 12                 LDX #18
+00222  E02E  A9 20                 LDA #$20
+00223  E030  20 B3 E6              JSR VDCREG_W
+00224  E033  A2 13                 LDX #19
+00225  E035  A9 00                 LDA #$00
+00226  E037  20 B3 E6              JSR VDCREG_W
+00227  E03A             
+00228  E03A  A0 00                 LDY #0
+00229  E03C             LOOP
+00230  E03C  A2 1F                 LDX #31
+00231  E03E             @1         
+00232  E03E  B1 DA                 LDA ($DA),Y
+00233  E040  20 B3 E6              JSR VDCREG_W
+00234  E043  C8                    INY
+00235  E044  C0 08                 CPY #8
+00236  E046  90 F6                 BCC @1
+00237  E048             
+00238  E048  A9 00                 LDA #0
+00239  E04A             @2         
+00240  E04A  20 B3 E6              JSR VDCREG_W
+00241  E04D  88                    DEY
+00242  E04E  D0 FA                 BNE @2
+00243  E050             
+00244  E050  18                    CLC
+00245  E051  A5 DA                 LDA $DA
+00246  E053  69 08                 ADC #8
+00247  E055  85 DA                 STA $DA
+00248  E057  90 E3                 BCC LOOP
+00249  E059  E6 DB                 INC $DB
+00250  E05B  A5 DB                 LDA $DB
+00251  E05D  C5 DE                 CMP $DE
+00252  E05F  D0 DB                 BNE LOOP
+00253  E061             
+00254  E061  A9 0E                 LDA #VDC_BAKCOL         ; SET BACKGROUND COLOR
+00255  E063  A2 1A                 LDX #26
+00256  E065  20 B3 E6              JSR VDCREG_W
+00257  E068  20 89 E6              JSR VDCSCREENCLEAR      ; CLEAR SCREEN
+00258  E06B                        
+00259  E06B  A9 00                 LDA #$00
+00260  E06D  A8                    TAY
+00261  E06E  20 D5 E6              JSR VDCPOS_W    ; GO TO POS 0,0
+00262  E071             
+00263  E071             
+00264  E071  A9 50                 LDA #<MNUTXT
+00265  E073  A0 E2                 LDY #>MNUTXT
+00266  E075  85 DA                 STA $DA
+00267  E077  84 DB                 STY $DB
+00268  E079  98                    TYA
+00269  E07A  18                    CLC
+00270  E07B  69 08                 ADC #08
+00271  E07D  85 DE                 STA $DE
+00272  E07F             
+00273  E07F  A2 12                 LDX #18
+00274  E081  A9 00                 LDA #$00
+00275  E083  20 B3 E6              JSR VDCREG_W
+00276  E086  A2 13                 LDX #19
+00277  E088  A9 00                 LDA #$00
+00278  E08A  20 B3 E6              JSR VDCREG_W
+00279  E08D             
+00280  E08D             @ROWLOOP
+00281  E08D  A9 20                 LDA #$20
+00282  E08F  A0 14                 LDY #20
+00283  E091  20 E0 E6              JSR VDCFILL
+00284  E094  A2 00                 LDX #$00
+00285  E096  A0 00                 LDY #$00
+00286  E098             @CHARLOOP
+00287  E098  C0 28                 CPY #40
+00288  E09A  F0 0C                 BEQ @ENDPADDING
+00289  E09C  B1 DA                 LDA ($DA),Y
+00290  E09E  A2 1F                 LDX #31
+00291  E0A0  20 B3 E6              JSR VDCREG_W
+00292  E0A3  C8                    INY
+00293  E0A4  C0 28                 CPY #40
+00294  E0A6  D0 F0                 BNE @CHARLOOP
+00295  E0A8             @ENDPADDING 
+00296  E0A8  A9 20                 LDA #$20
+00297  E0AA  A0 14                 LDY #20
+00298  E0AC  20 E0 E6              JSR VDCFILL
+00299  E0AF  A5 DA                 LDA $DA
+00300  E0B1  18                    CLC
+00301  E0B2  69 28                 ADC #40
+00302  E0B4  85 DA                 STA $DA
+00303  E0B6  90 D5                 BCC @ROWLOOP
+00304  E0B8  E6 DB                 INC $DB
+00305  E0BA  A5 DB                 LDA $DB
+00306  E0BC  C5 DE                 CMP $DE
+00307  E0BE  D0 CD                 BNE @ROWLOOP
+00308  E0C0             
+00309  E0C0             
+00310  E0C0             
+00311  E0C0  A9 10                 LDA #$10
+00312  E0C2  85 DC                 STA $DC
+00313  E0C4  A9 00                 LDA #$00
+00314  E0C6  A0 08                 LDY #$08
+00315  E0C8  20 D5 E6              JSR VDCPOS_W    ; GO TO POS 0 IN ATTRIBUTE MEMORY
+00316  E0CB             ATTRLOOP
+00317  E0CB                        ; FILL CHARACTER ATTRIBUTE MEMORY
+00318  E0CB  A9 81                 LDA #VDC_CHRC+VDC_ALTERNATE
+00319  E0CD  A0 FF                 LDY #$FF
+00320  E0CF  20 E0 E6              JSR VDCFILL
+00321  E0D2  C6 DC                 DEC $DC
+00322  E0D4  D0 F5                 BNE ATTRLOOP
+00323  E0D6             
+00324  E0D6             
+00325  E0D6                        
+00326  E0D6             
+00327  E0D6                        ;SETUP CIA PORT DATA DIRECTIONS
+00328  E0D6  A9 FF                 LDA #%11111111 ; ALL OUTPUTS
+00329  E0D8  8D 02 DC              STA DDRA
+00330  E0DB  A9 00                 LDA #%00000000 ; ALL INPUTS
+00331  E0DD  8D 03 DC              STA DDRB
+00332  E0E0             
+00333  E0E0  A9 00                 LDA #$00
+00334  E0E2  8D 00 12              STA SHIFTS
+00335  E0E5  8D 01 12              STA LASTKEY
+00336  E0E8  A9 01                 LDA #$01
+00337  E0EA  8D 02 12              STA KRNIMG     ; INITIAL HIGHLIGHTED IMAGE = 1
+00338  E0ED             
+00339  E0ED             
+00340  E0ED             CHKCBM     
+00341  E0ED                        ; CHECK FOR CBM KEY ON START
+00342  E0ED  A9 7F                 LDA #%01111111  ; SELECT KEYBOARD ROW 7
+00343  E0EF  8D 00 DC              STA PORTA
+00344  E0F2  AD 01 DC              LDA PORTB       ; READ KEYBOARD COLUMNS
+00345  E0F5  29 20                 AND #%00100000  ; CHECK FOR CBM KEY
+00346  E0F7  D0 03                 BNE NOT64       ; SKIP C64 MODE
+00347  E0F9  4C 6C E6              JMP C64MODE
+00348  E0FC             NOT64      ; CONTINUE IN C128 MODE
+00349  E0FC  20 05 E1              JSR MENU
+00350  E0FF  20 3C E1              JSR HILITE
+00351  E102                        ;JSR ENABLESPRITE0
+00352  E102  20 50 E1              JSR SCANKEY
+00353  E105             
+00354  E105             
+00355  E105             ;ENABLESPRITE0
+00356  E105             ;        LDY #0          ; COPY 64 BYTES OF SPRITE DATA TO RAM
+00357  E105             ;@COPY   LDA SPRITE0DATA,Y
+00358  E105             ;        STA $0E00,Y
+00359  E105             ;        INY
+00360  E105             ;        CPY #63
+00361  E105             ;        BNE @COPY
+00362  E105             ;        LDA #60
+00363  E105             ;        STA $D000       ; SET SPRITE 0 X POS
+00364  E105             ;        LDA #255
+00365  E105             ;        STA $D010       ; ENABLE HIGH BYTE
+00366  E105             ;        LDA #225
+00367  E105             ;        STA $D001       ; SET SPRITE 0 Y POS
+00368  E105             
+00369  E105             ;        LDA #160
+00370  E105             ;        LDA #CHRC
+00371  E105             ;        STA $D027       ; SET SPRITE 0 COLOR
+00372  E105             ;        LDA #%00000001  ; ENABLE SPRITE 0
+00373  E105             ;        STA $D015
+00374  E105             ;        LDA #$38        ; SPRITE AT $0E00
+00375  E105             ;        STA $07F8
+00376  E105             ;        RTS
+00377  E105             
+00378  E105             ;DISABLESPRITES
+00379  E105             ;        LDA #0          ; DISABLE ALL SPRITES
+00380  E105             ;        STA $D015
+00381  E105             ;        RTS
+00382  E105             
+00383  E105                        ; DRAW MENU ON 40 COLUMN SCREEN
+00384  E105  A9 17      MENU       LDA #$17
+00385  E107  8D 18 D0              STA $D018       ; SWITCH TO LOWER CASE CHARS
+00386  E10A  A0 00                 LDY #$00
+00387  E10C  B9 50 E2   @DRWMNU    LDA MNUTXT,Y
+00388  E10F  99 00 04              STA $0400,Y     ; COPY MENU CHARS TO SCREEN MEMORY
+00389  E112  A9 0D                 LDA #CHRC
+00390  E114  99 00 D8              STA $D800,Y     ; AND SET CHAR COLOR
+00391  E117             
+00392  E117  B9 50 E3              LDA MNUTXT+256,Y
+00393  E11A  99 00 05              STA $0500,Y
+00394  E11D  A9 0D                 LDA #CHRC
+00395  E11F  99 00 D9              STA $D900,Y
+00396  E122             
+00397  E122  B9 50 E4              LDA MNUTXT+512,Y
+00398  E125  99 00 06              STA $0600,Y
+00399  E128  A9 0D                 LDA #CHRC
+00400  E12A  99 00 DA              STA $DA00,Y
+00401  E12D             
+00402  E12D  B9 50 E5              LDA MNUTXT+768,Y
+00403  E130  99 00 07              STA $0700,Y
+00404  E133  A9 0D                 LDA #CHRC
+00405  E135  99 00 DB              STA $DB00,Y
+00406  E138  C8                    INY
+00407  E139  D0 D1                 BNE @DRWMNU
+00408  E13B  60                    RTS
+00409  E13C             
+00410  E13C             HILITE     
+00411  E13C  48                    PHA
+00412  E13D  8A                    TXA
+00413  E13E  48                    PHA
+00414  E13F  98                    TYA
+00415  E140  48                    PHA
+00416  E141  AD 02 12              LDA KRNIMG
+00417  E144  20 07 E8              JSR VICROW_HL
+00418  E147  20 03 E7              JSR VDCROW_HL
+00419  E14A  68                    PLA
+00420  E14B  A8                    TAY
+00421  E14C  68                    PLA
+00422  E14D  AA                    TAX
+00423  E14E  68                    PLA
+00424  E14F  60                    RTS
+00425  E150             
+00426  E150             
+00427  E150             
+00428  E150  A9 00      SCANKEY    LDA #$00
+00429  E152  CD 12 D0              CMP $D012       ; WAIT FOR RASTER LINE 0 TO ONLY SCAN KEYS ONCE
+00430  E155  D0 F9                 BNE SCANKEY     ; PER FRAME TO DEBOUNCE KEYS
+00431  E157  8D 00 12              STA SHIFTS      ; CLEAR OLD SHIFT PRESSED INDICATORS
+00432  E15A  A8                    TAY             ; CLEAR PRESSED KEY
+00433  E15B                        ; FIND OUT IF ANY SHIFT KEY IS PRESSED AND SET SHIFTS TO 1
+00434  E15B                        ; CHECK FOR "RIGHT SHIFT" ROW 6, COLUMN 4
+00435  E15B  A9 BF                 LDA #%10111111  ; SELECT ROW 6
+00436  E15D  8D 00 DC              STA PORTA
+00437  E160  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00438  E163  29 10                 AND #%00010000  ; CHECK AGAINST COLUMN BIT 4
+00439  E165  F0 0F                 BEQ SHIFTED
+00440  E167                        ; CHECK FOR "LEFT SHIFT" ROW 1, COLUMN 7
+00441  E167  A9 FD                 LDA #%11111101  ; SELECT ROW 1
+00442  E169  8D 00 DC              STA PORTA
+00443  E16C  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00444  E16F  29 80                 AND #%10000000  ; CHECK AGAINST COLUMN BIT 7
+00445  E171  F0 03                 BEQ SHIFTED
+00446  E173  4C 7B E1              JMP CRSRCHK
+00447  E176             
+00448  E176  A9 01      SHIFTED    LDA #$01
+00449  E178  8D 00 12              STA SHIFTS
+00450  E17B             
+00451  E17B             CRSRCHK    ; CHECK FOR "CURSOR" ROW 0, COLUMN 7
+00452  E17B  A9 FE                 LDA #%11111110  ; SELECT ROW 0
+00453  E17D  8D 00 DC              STA PORTA
+00454  E180  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00455  E183  29 80                 AND #%10000000  ; CHECK AGAINST COLUMN BIT 7
+00456  E185  D0 0A                 BNE EXTCHK
+00457  E187  AE 00 12              LDX SHIFTS
+00458  E18A  E0 01                 CPX #$01
+00459  E18C  F0 38                 BEQ CRSRUP
+00460  E18E  4C CB E1              JMP CRSRDN
+00461  E191             
+00462  E191             EXTCHK     ; CHECK FOR EXTENDED KEY UP
+00463  E191  A9 FB                 LDA #%11111011  ; SELECT ROW 2
+00464  E193  8D 2F D0              STA EXTKB
+00465  E196  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00466  E199  29 08                 AND #%00001000  ; CHECK AGAINST COLUMN 3
+00467  E19B  F0 29                 BEQ CRSRUP
+00468  E19D                        ; CHECK FOR EXTENDED KEY DOWN
+00469  E19D  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00470  E1A0  29 10                 AND #%00010000  ; CHECK AGAINST COLUMN 4
+00471  E1A2  F0 27                 BEQ CRSRDN
+00472  E1A4             
+00473  E1A4             RETCHK     ; CHECK FOR "RETURN" ROW 0, COLUMN BIT 1
+00474  E1A4  A9 FE                 LDA #%11111110  ; SELECT ROW 0
+00475  E1A6  8D 00 DC              STA PORTA
+00476  E1A9  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00477  E1AC  29 02                 AND #%00000010  ; CHECK AGAINST COLUMN BIT 1
+00478  E1AE  D0 05                 BNE ENTCHK
+00479  E1B0  A0 03                 LDY #$03
+00480  E1B2  4C D0 E1              JMP KEYHNDL
+00481  E1B5             
+00482  E1B5             ENTCHK     ; CHECK FOR "ENTER" ROW 0, COLUMN BIT 1
+00483  E1B5  A9 FD                 LDA #%11111101  ; SELECT ROW 1
+00484  E1B7  8D 2F D0              STA EXTKB
+00485  E1BA  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00486  E1BD  29 10                 AND #%00010000  ; CHECK AGAINST COLUMN BIT 4
+00487  E1BF  D0 0F                 BNE KEYHNDL
+00488  E1C1  A0 03                 LDY #$03
+00489  E1C3  4C D0 E1              JMP KEYHNDL
+00490  E1C6             
+00491  E1C6  A0 02      CRSRUP     LDY #$02
+00492  E1C8  4C D0 E1              JMP KEYHNDL
+00493  E1CB             
+00494  E1CB  A0 01      CRSRDN     LDY #$01
+00495  E1CD  4C D0 E1              JMP KEYHNDL
+00496  E1D0             
+00497  E1D0  CC 01 12   KEYHNDL    CPY LASTKEY
+00498  E1D3  F0 2D                 BEQ KEYDONE     ; SAME KEY AS LAST TIME - DO NOTHING.
+00499  E1D5             
+00500  E1D5  C0 01      GODOWN     CPY #$01
+00501  E1D7  D0 0F                 BNE GOUP
+00502  E1D9  AD 02 12              LDA KRNIMG
+00503  E1DC  C9 04                 CMP #KRNIMGS     ; ALREADY AT END OF LIST?
+00504  E1DE  B0 22                 BCS KEYDONE
+00505  E1E0  F0 20                 BEQ KEYDONE
+00506  E1E2  EE 02 12              INC KRNIMG
+00507  E1E5  20 3C E1              JSR HILITE
+00508  E1E8  C0 02      GOUP       CPY #$02
+00509  E1EA  D0 0F                 BNE RETPUSH
+00510  E1EC  AD 02 12              LDA KRNIMG
+00511  E1EF  C9 01                 CMP #$01        ; ALREADY AT BEGINNING OF LIST
+00512  E1F1  90 0F                 BCC KEYDONE
+00513  E1F3  F0 0D                 BEQ KEYDONE
+00514  E1F5  CE 02 12              DEC KRNIMG
+00515  E1F8  20 3C E1              JSR HILITE
+00516  E1FB  C0 03      RETPUSH    CPY #$03
+00517  E1FD  D0 03                 BNE KEYDONE
+00518  E1FF  4C 08 E2              JMP SENDCMD
+00519  E202  8C 01 12   KEYDONE    STY LASTKEY
+00520  E205  4C 50 E1              JMP SCANKEY     ; NOTHING TO DO NOW. KEEP SCANNING KEYS
+00521  E208             
+00522  E208             
+00523  E208             
+00524  E208             SENDCMD
+00525  E208                        ;JSR DISABLESPRITES
+00526  E208  20 F3 E7              JSR VICCLEAR
+00527  E20B  20 89 E6              JSR VDCSCREENCLEAR
+00528  E20E  A2 00                 LDX #$00
+00529  E210  BD 39 E2   SENDASC    LDA CMDASC,X
+00530  E213  9D 03 12              STA CMDADDR,X   ; WRITE COMMAND STRING TO DATA BUS TO BE PICKED UP BY KERNAL SWITCHER
+00531  E216  E8                    INX
+00532  E217  E0 0A                 CPX #CMDASCEND-CMDASC   ; LENGTH OF COMMAND STRING
+00533  E219  D0 F5                 BNE SENDASC
+00534  E21B  AD 02 12              LDA KRNIMG
+00535  E21E  9D 03 12              STA CMDADDR,X   ; SEND SELECTED KERNAL IMAGE NUMBER TO DATA BUS
+00536  E221  A2 00                 LDX #$00
+00537  E223             SENDASCDCR 
+00538  E223  BD 43 E2              LDA CMDASCDCR,X
+00539  E226  9D 03 12              STA CMDADDR,X   ; WRITE COMMAND STRING TO DATA BUS TO BE PICKED UP BY KERNAL SWITCHER
+00540  E229  E8                    INX
+00541  E22A  E0 0D                 CPX #CMDASCDCREND-CMDASCDCR   ; LENGTH OF COMMAND STRING
+00542  E22C  D0 F5                 BNE SENDASCDCR
+00543  E22E  AD 02 12              LDA KRNIMG
+00544  E231  9D 03 12              STA CMDADDR,X   ; SEND SELECTED KERNAL IMAGE NUMBER TO DATA BUS
+00545  E234  A2 00                 LDX #$00
+00546  E236  4C 10 E2              JMP SENDASC
+00547  E239             
+00548  E239             
+00549  E239             
+00550  E239             
+00551  E239             
+00552  E239             
+00553  E239             ; ASCII CBMROM128# COMMAND FOR KERNAL SWITCHER ON DATA BUS
+00554  E239             CMDASC     ; CBMROM128#
+00555  E239  43 42 4D              BYTE $43, $42, $4D, $52, $4F, $4D, $31, $32, $38, $23
+00556  E243             CMDASCEND
+00557  E243             ; ASCII CBMROM128DCR# COMMAND FOR C128DCR COMBO SWITCH
+00558  E243             CMDASCDCR
+00559  E243  43 42 4D              BYTE $43, $42, $4D, $52, $4F, $4D, $31, $32, $38, $44, $43, $52, $23
+00560  E250             CMDASCDCREND 
+00561  E250             
+00562  E250             
+00563  E250             MNUTXT     ; MENU LAYOUT
+00564  E250                        ; 6 HEADER ROWS
+00565  E250             
+00566  E250  20 20 20              TEXT '                                        '
+00567  E278  20 20 20              TEXT '               CBM C128                 '
+00568  E2A0  20 20 20              TEXT '                                        '
+00569  E2C8  20 20 20              TEXT '         KERNAL SWITCHER V2.0           '
+00570  E2F0  20 20 20              TEXT '                                        '
+00571  E318  20 20 20              TEXT '                                        '
+00572  E340                        ; UP TO 10 MENU CHOICES. NUMBER OF SHOWN LINES CONTROLLED BY VALUE IN $KERNALIMAGES
+00573  E340  20 20 31              TEXT '  1. CBM STANDARD (US)                  '
+00574  E368  20 20 32              TEXT '  2. CBM STANDARD (SWE/FIN)             '
+00575  E390  20 20 33              TEXT '  3. JIFFYDOS 6.02 (US)                 '
+00576  E3B8  20 20 34              TEXT '  4. JIFFYDOS 6.02 (SWE/FIN)            '
+00577  E3E0  20 20 20              TEXT '                                        '
+00578  E408  20 20 20              TEXT '                                        '
+00579  E430  20 20 20              TEXT '                                        '
+00580  E458  20 20 20              TEXT '                                        '
+00581  E480  20 20 20              TEXT '                                        '
+00582  E4A8  20 20 20              TEXT '                                        '
+00583  E4D0                        ; 8 FOOTER ROWS
+00584  E4D0  20 20 20              TEXT '                                        '
+00585  E4F8  20 20 20              TEXT '                                        '
+00586  E520  20 20 20              TEXT '                                        '
+00587  E548  20 55 13              TEXT ' USE CURSOR UP/DOWN TO SELECT A KERNAL  '
+00588  E570  20 20 20              TEXT '                                        '
+00589  E598  20 50 12              TEXT ' PRESS RETURN OR ENTER TO CONFIRM       '
+00590  E5C0  20 20 20              TEXT '                                        '
+00591  E5E8  20 20 20              TEXT '                                        '
+00592  E610  20 20 20              TEXT '                                        '
+00593  E638             
+00594  E638             
+00595  E638             
+00596  E638             ; SETUP DEFAULT MMU REGISTERS
+00597  E638             MMUINIT
+00598  E638  A9 00                 LDA #0
+00599  E63A  8D 00 FF              STA MMUCR       ; CONFIGURE SYSTEM MAP: C/128 MODE, I/O IN, RAM0
+00600  E63D  A2 0A                 LDX #10
+00601  E63F  BD 49 E6   MMULOOP    LDA MMUTBL,X
+00602  E642  9D 00 D5              STA MMU_LO,X    ; RESET ALL MMU REGISTERS
+00603  E645  CA                    DEX
+00604  E646  10 F7                 BPL MMULOOP
+00605  E648  60                    RTS
+00606  E649             
+00607  E649  00 00 00   MMUTBL     BYTE $00,$00,$00,$00,$00,$BF,$04,$00,$00,$01,$00
+00608  E654             
+00609  E654             
+00610  E654             
+00611  E654             ; DETECT PAL OR NTSC
+00612  E654             ; $0A03: $0 = NTSC, $FF = PAL
+00613  E654             PALNTSC
+00614  E654  A2 FF                 LDX #$FF        ;SETUP FOR PAL/NTSC TEST
+00615  E656  AD 11 D0   @10        LDA VICREG+17
+00616  E659  10 FB                 BPL @10         ;...BRANCH UNTIL RASTER AT BOTTOM
+00617  E65B  A9 08      @20        LDA #$08
+00618  E65D  CD 12 D0              CMP VICREG+18
+00619  E660  90 06                 BCC @30         ;...BRANCH IF >264: PAL SYSTEM
+00620  E662  AD 11 D0              LDA VICREG+17
+00621  E665  30 F4                 BMI @20         ;...BRANCH UNTIL RASTER WRAPS TO TOP
+00622  E667  E8                    INX             ;NTSC SYSTEM
+00623  E668  8E 03 0A   @30        STX PALNTS
+00624  E66B  60                    RTS
+00625  E66C             
+00626  E66C             
+00627  E66C             ; SWITCH TO C64 MODE
+00628  E66C             C64MODE    
+00629  E66C  A9 E3                 LDA #%11100011  ; INITIALIZE 6510 PORT
+00630  E66E  85 01                 STA R6510
+00631  E670  A9 2F                 LDA #%00101111  ; 6510 DDR
+00632  E672  85 00                 STA D6510
+00633  E674  A2 08                 LDX #C64END-C64BEG
+00634  E676  BD 80 E6   DLCODE     LDA C64BEG-1,X  ; DOWNLOAD 64 MODE CODE TO RAM
+00635  E679  95 01                 STA BANK-1,X
+00636  E67B  CA                    DEX
+00637  E67C  D0 F8                 BNE DLCODE
+00638  E67E  8E 30 D0              STX VICREG+48   ; FORCE 1MHZ MODE
+00639  E681  A9 F7      C64BEG     LDA #$F7        ; 64 MODE CODE
+00640  E683  8D 00 FF              STA MMUCR
+00641  E686  6C FC FF              JMP ($FFFC)
+00642  E689             C64END
+00643  E689             
+00644  E689             
+00645  E689             ; VDC FUNCTIONS
+00646  E689             
+00647  E689             ; FILL 2KB OF SCREEN RAM WITH SPACES
+00648  E689             VDCSCREENCLEAR 
+00649  E689  A9 00                 LDA #$00
+00650  E68B  A8                    TAY
+00651  E68C  20 D5 E6              JSR VDCPOS_W
+00652  E68F             
+00653  E68F  A9 20                 LDA #$20        ; WRITE A SPACE
+00654  E691  A2 1F                 LDX #31
+00655  E693  20 B3 E6              JSR VDCREG_W
+00656  E696  A2 18                 LDX #24
+00657  E698  20 BF E6              JSR VDCREG_R    ; SET COPY/FILL FLAG TO 0
+00658  E69B  29 7F                 AND #%01111111
+00659  E69D  20 B3 E6              JSR VDCREG_W
+00660  E6A0  A0 08                 LDY #$08        ; EIGTH CHARACTERS
+00661  E6A2             @LOOP      
+00662  E6A2  A2 1E                 LDX #30
+00663  E6A4  A9 FE                 LDA #$FE        ; FILL 254 TIMES (2KB)
+00664  E6A6  20 B3 E6              JSR VDCREG_W
+00665  E6A9  88                    DEY
+00666  E6AA  D0 F6                 BNE @LOOP
+00667  E6AC             
+00668  E6AC  A9 00                 LDA #$00
+00669  E6AE  A8                    TAY
+00670  E6AF  20 D5 E6              JSR VDCPOS_W
+00671  E6B2  60                    RTS
+00672  E6B3             
+00673  E6B3             
+00674  E6B3             VDCREG_W
+00675  E6B3  8E 00 D6              STX VDCADR
+00676  E6B6  2C 00 D6   @LOOP      BIT VDCADR
+00677  E6B9  10 FB                 BPL @LOOP
+00678  E6BB  8D 01 D6              STA VDCDAT
+00679  E6BE  60                    RTS
+00680  E6BF             
+00681  E6BF             VDCREG_R
+00682  E6BF  8E 00 D6              STX VDCADR
+00683  E6C2  2C 00 D6   @LOOP      BIT VDCADR
+00684  E6C5  10 FB                 BPL @LOOP
+00685  E6C7  AD 01 D6              LDA VDCDAT
+00686  E6CA  60                    RTS
+00687  E6CB             
+00688  E6CB             ; WRITE BYTE AT CURRENT VDC POSTITION
+00689  E6CB             ; VALUE IN A
+00690  E6CB             VDCBYTE_W
+00691  E6CB  8A                    TXA
+00692  E6CC  48                    PHA
+00693  E6CD  A2 1F                 LDX #31
+00694  E6CF  20 B3 E6              JSR VDCREG_W
+00695  E6D2  68                    PLA
+00696  E6D3  AA                    TAX
+00697  E6D4  60                    RTS
+00698  E6D5                        
+00699  E6D5             ; SET READ/WRITE POSITION IN MEMORY
+00700  E6D5             ; LOW BYTE IN A, HIGH BYTE IN Y
+00701  E6D5             VDCPOS_W
+00702  E6D5  A2 13                 LDX #19
+00703  E6D7  20 B3 E6              JSR VDCREG_W
+00704  E6DA  98                    TYA
+00705  E6DB  CA                    DEX
+00706  E6DC  20 B3 E6              JSR VDCREG_W
+00707  E6DF  60                    RTS
+00708  E6E0             
+00709  E6E0             ; WRITE BYTE A, Y NUMBER OF TIMES
+00710  E6E0             VDCFILL
+00711  E6E0  C0 00                 CPY #$00
+00712  E6E2  F0 1D                 BEQ @NOFILL
+00713  E6E4  48                    PHA
+00714  E6E5  A2 1F                 LDX #31
+00715  E6E7  20 B3 E6              JSR VDCREG_W
+00716  E6EA  C0 01                 CPY #$01
+00717  E6EC  F0 13                 BEQ @NOFILL
+00718  E6EE             @FILL
+00719  E6EE  A2 18                 LDX #24
+00720  E6F0  20 BF E6              JSR VDCREG_R    ; SET COPY/FILL FLAG TO 0
+00721  E6F3  29 7F                 AND #%01111111
+00722  E6F5  20 B3 E6              JSR VDCREG_W
+00723  E6F8  A2 1E                 LDX #30
+00724  E6FA  98                    TYA
+00725  E6FB  38                    SEC
+00726  E6FC  E9 01                 SBC #$01        ; SUBTRACT ONE FOR THE BYTE ALREADY WRITTEN
+00727  E6FE  20 B3 E6              JSR VDCREG_W
+00728  E701             @NOFILL
+00729  E701  68                    PLA
+00730  E702  60                    RTS
+00731  E703             
+00732  E703             
+00733  E703             ; HIGHLIGHT ROW STORED IN A
+00734  E703             VDCROW_HL
+00735  E703  18                    CLC
+00736  E704  69 05                 ADC #$05 ; ADD FIVE TO ROW INDEX TO SKIP HEADER ROWS
+00737  E706  85 DC                 STA $DC ; STORE SELECTED ROW
+00738  E708  98                    TYA
+00739  E709  48                    PHA
+00740  E70A  A9 00                 LDA #$00
+00741  E70C  A0 08                 LDY #$08
+00742  E70E  20 D5 E6              JSR VDCPOS_W
+00743  E711                        
+00744  E711  A2 00                 LDX #$00
+00745  E713             @ROWLOOP
+00746  E713  8A                    TXA
+00747  E714  48                    PHA
+00748  E715  E4 DC                 CPX $DC
+00749  E717  D0 02                 BNE @HLOFF
+00750  E719  F0 0A                 BEQ @HL
+00751  E71B             @HLOFF
+00752  E71B                        ; INACTIVE ROW, TURN OFF HIGHLIGHT
+00753  E71B  A9 81                 LDA #VDC_CHRC+VDC_ALTERNATE
+00754  E71D  A0 50                 LDY #80
+00755  E71F  20 E0 E6              JSR VDCFILL
+00756  E722  4C 2C E7              JMP @ROWDONE
+00757  E725             @HL
+00758  E725                        ; ACTIVE ROW, TURN ON HIGHLIGHT
+00759  E725  A9 8F                 LDA #VDC_CHRCHL+VDC_ALTERNATE
+00760  E727  A0 50                 LDY #80
+00761  E729  20 E0 E6              JSR VDCFILL
+00762  E72C             @ROWDONE
+00763  E72C  68                    PLA
+00764  E72D  AA                    TAX
+00765  E72E  E8                    INX
+00766  E72F  E0 19                 CPX #25
+00767  E731  D0 E0                 BNE @ROWLOOP
+00768  E733  68                    PLA
+00769  E734  A8                    TAY
+00770  E735  60                    RTS
+00771  E736             
+00772  E736             
+00773  E736             ; CBM KERNAL VDC INITIALIZATION CODE BELOW
+00774  E736             
+00775  E736             VDCSTART
+00776  E736  A2 00                 LDX #0          ;INITIALIZE 8563 (NTSC)
+00777  E738  20 52 E7              JSR VDC_INIT
+00778  E73B  AD 00 D6              LDA VDCADR
+00779  E73E  29 07                 AND #$07
+00780  E740  F0 05                 BEQ @50         ;...BRANCH IF OLD 8563R7
+00781  E742  A2 3B                 LDX #VDCPAT-VDCTBL
+00782  E744  20 52 E7              JSR VDC_INIT    ;...ELSE APPLY -R8 PATCHES
+00783  E747  2C 03 0A   @50        BIT PALNTS
+00784  E74A  10 05                 BPL @60         ;...BRANCH IF NTSC
+00785  E74C  A2 3E                 LDX #VDCPAL-VDCTBL
+00786  E74E  20 66 E7              JSR VDC_PATCH   ;...ELSE APPLY PAL PATCHES (318020-04 FIX)
+00787  E751             @60
+00788  E751  60                    RTS
+00789  E752             
+00790  E752             
+00791  E752             VDC_INIT
+00792  E752  BC 73 E7              LDY VDCTBL,X    ;GET 8563 REGISTER #
+00793  E755  30 0D                 BMI @10         ;...BRANCH IF END-OF-TABLE
+00794  E757  E8                    INX
+00795  E758  BD 73 E7              LDA VDCTBL,X    ;GET DATA FOR THIS REGISTER
+00796  E75B  E8                    INX
+00797  E75C  8C 00 D6              STY VDCADR
+00798  E75F  8D 01 D6              STA VDCDAT
+00799  E762  10 EE                 BPL VDC_INIT    ;ALWAYS
+00800  E764             
+00801  E764  E8         @10        INX
+00802  E765  60                    RTS
+00803  E766             
+00804  E766             
+00805  E766             VDC_PATCH  ;(#318020-04   11/15/85   F.A.B.)
+00806  E766             
+00807  E766             ;  CORRECTED 8563 PAL INITIALIZATION IN IOINIT.  WITH A CHEAP MONITOR
+00808  E766             ;  THERE WAS INTERFERENCE WITH LINE FREQUENCY.  BOTH HORIZONTAL TOTAL
+00809  E766             ;  AND VERTICAL TOTAL HAVE BEEN ADJUSTED. SEE ALSO 'VDCPAL' TABLE.
+00810  E766             
+00811  E766             
+00812  E766  A0 00                 LDY #0          ;VDC REGISTER #0
+00813  E768  A9 7F                 LDA #$7F        ;PAL HORIZONTAL TOTAL
+00814  E76A  8C 00 D6              STY VDCADR
+00815  E76D  8D 01 D6              STA VDCDAT
+00816  E770             
+00817  E770  4C 52 E7              JMP VDC_INIT    ;RESUME 'NORMAL' PAL INIT & RTS
+00818  E773             
+00819  E773             
+00820  E773             
+00821  E773  00 7E 01   VDCTBL     BYTE  0,$7E, 1,$50, 2,$66, 3,$49, 4,$20, 5,$00, 6,$19, 7,$1D   ;8563 NTSC
+00822  E783  08 00 09              BYTE  8,$00, 9,$07,10,$20,11,$07,12,$00,13,$00,14,$00,15,$00
+00823  E793  14 08 15              BYTE 20,$08,21,$00,23,$08,24,$20,25,$40,26,$F0,27,$00,28,$20
+00824  E7A3  1D 07 22              BYTE 29,$07,34,$7D,35,$64,36,$05,22,$78,$FF
+00825  E7AE             
+00826  E7AE  19 47 FF   VDCPAT     BYTE 25,$47, $FF               ;8563 PATCHES
+00827  E7B1             
+00828  E7B1  04 26 07   VDCPAL     BYTE  4,$26, 7,$20,$FF         ;8563 PAL (318020-04 FIX. SEE VDC_PATCH TOO)
+00829  E7B6             
+00830  E7B6             VICINIT
+00831  E7B6  A2 30                 LDX #48
+00832  E7B8  BD C2 E7   VICLOOP    LDA VICTBL,X    ; INITIALIZE VIC
+00833  E7BB  9D 00 D0              STA VICREG,X
+00834  E7BE  CA                    DEX
+00835  E7BF  10 F7                 BPL VICLOOP
+00836  E7C1  60                    RTS
+00837  E7C2             
+00838  E7C2  00 00 00   VICTBL     BYTE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0         ;REG  0-16 (SPRITE POS)
+00839  E7D3  1B FF 00              BYTE $1B,$FF,0,0,0,$08,0,$14,$FF,1,0,0,0,0,0   ;REG 17-31 (CONTROL)
+00840  E7E2  0D 0B 01              BYTE BODCOL,BAKCOL,1,2,3,1,2,0,1,2,3,4,5,6,7   ;REG 32-46 (COLORS)
+00841  E7F1  FF FC                 BYTE $FF,$FC                                   ;REG 47-48 (KEYLINES & 2MHZ)
+00842  E7F3             
+00843  E7F3             
+00844  E7F3             VICCLEAR   
+00845  E7F3  A2 00                 LDX #$00
+00846  E7F5  A9 20                 LDA #$20
+00847  E7F7             @CLR       ; CLEAR 40 COLUMN SCREEN
+00848  E7F7  9D 00 04              STA $0400,X
+00849  E7FA  9D 00 05              STA $0500,X
+00850  E7FD  9D 00 06              STA $0600,X
+00851  E800  9D 00 07              STA $0700,X
+00852  E803  E8                    INX
+00853  E804  D0 F1                 BNE @CLR
+00854  E806  60                    RTS
+00855  E807             
+00856  E807             
+00857  E807             
+00858  E807             ; HIGHLIGHT ROW STORED IN A
+00859  E807             VICROW_HL
+00860  E807  48                    PHA
+00861  E808  18                    CLC
+00862  E809  69 05                 ADC #$05 ; ADD FIVE TO ROW INDEX TO SKIP HEADER ROWS
+00863  E80B  85 DC                 STA $DC ; STORE SELECTED ROW
+00864  E80D             
+00865  E80D  A9 00                 LDA #<$D800
+00866  E80F  A0 D8                 LDY #>$D800
+00867  E811  85 DA                 STA $DA         ; START OF DATA LO BYTE
+00868  E813  84 DB                 STY $DB         ; START OF DATA HI BYTE
+00869  E815             
+00870  E815  A2 00                 LDX #0
+00871  E817             @ROW_LOOP
+00872  E817  A0 00                 LDY #0
+00873  E819  E4 DC                 CPX $DC
+00874  E81B  F0 07                 BEQ @HL_ON
+00875  E81D  D0 00                 BNE @HL_OFF
+00876  E81F             @HL_OFF
+00877  E81F                        ; INACTIVE ROW, TURN OFF HIGHLIGHT
+00878  E81F  A9 0D                 LDA #CHRC
+00879  E821  4C 26 E8              JMP @CHARS
+00880  E824             @HL_ON
+00881  E824  A9 01                 LDA #CHRCHL
+00882  E826             @CHARS
+00883  E826  91 DA                 STA($DA),Y
+00884  E828  C8                    INY
+00885  E829  C0 28                 CPY #40
+00886  E82B  D0 F9                 BNE @CHARS
+00887  E82D             
+00888  E82D             @ROW_DONE
+00889  E82D  E8                    INX
+00890  E82E  E0 19                 CPX #25
+00891  E830  F0 0D                 BEQ @DONE
+00892  E832  A5 DA                 LDA $DA
+00893  E834  18                    CLC
+00894  E835  69 28                 ADC #40
+00895  E837  85 DA                 STA $DA
+00896  E839  90 DC                 BCC @ROW_LOOP
+00897  E83B  E6 DB                 INC $DB
+00898  E83D  D0 D8                 BNE @ROW_LOOP
+00899  E83F             @DONE
+00900  E83F  68                    PLA
+00901  E840  60                    RTS
+00902  E841             
+00903  E841             CHARDATA
+00904  E841             INCBIN     C128CHARS.BIN
+00905  F841             CHARDATA_END 
+00906  F841             
+00907  F841             ;SPRITE0DATA
+00908  F841             ;INCBIN NINJASPRITE.BIN
+00909  F841             ; TEXT "..................@....."
+00910  F841             ; TEXT "...@...@.........@@.@..."
+00911  F841             ; TEXT "..@.@.@..........@.@@..."
+00912  F841             ; TEXT "...@.@...@@@@@@..@@@...."
+00913  F841             ; TEXT "....@.@@@@@@@@@@@.@....."
+00914  F841             ; TEXT "...@.@@@@@@@@@@@@@......"
+00915  F841             ; TEXT "..@..@@@@@@@@@@@@@@....."
+00916  F841             ; TEXT ".....@@@@@@@@@@@@@@....."
+00917  F841             ; TEXT "....@@.....@@.....@@...."
+00918  F841             ; TEXT "....@..@@......@@..@...."
+00919  F841             ; TEXT "....@..@@@....@@@..@...."
+00920  F841             ; TEXT "....@@.....@@.....@@...."
+00921  F841             ; TEXT "....@@@@@@@@@@@@@@@@...."
+00922  F841             ; TEXT "....@@@@@@@@@@@@@@@@...."
+00923  F841             ; TEXT ".....@@@@@@@@@@@@@@....."
+00924  F841             ; TEXT ".....@@@@@@@@@@@@@@....."
+00925  F841             ; TEXT "......@@@@@@@@@@@@@....."
+00926  F841             ; TEXT ".......@@@@@@@@@@@.@...."
+00927  F841             ; TEXT ".........@@@@@@...@.@..."
+00928  F841             ; TEXT "...................@.@.."
+00929  F841             ; TEXT "....................@@.."
+00930  F841             
+00931  F841             
+00932  F841             *=$FFFC    ; START VECTOR
+00933  FFFC  00 E0 50              BYTE <START, >START, <SCANKEY, >SCANKEY
+00934  0000             
+
+******* 61 Label(s) *******
+~~~1{00000} = $E03E 
+~~~2{00000} = $E04A 
+~~~charloop{00001} = $E098 
+~~~endpadding{00001} = $E0A8 
+~~~rowloop{00001} = $E08D 
+attrloop = $E0CB 
+c64beg = $E681 
+c64end = $E689 
+c64mode = $E66C 
+chardata = $E841 
+chardata_end = $F841 
+chkcbm = $E0ED 
+cmdasc = $E239 
+cmdascdcr = $E243 
+cmdascdcrend = $E250 
+cmdascend = $E243 
+crsrchk = $E17B 
+crsrdn = $E1CB 
+crsrup = $E1C6 
+dlcode = $E676 
+entchk = $E1B5 
+extchk = $E191 
+godown = $E1D5 
+goup = $E1E8 
+hilite = $E13C 
+keydone = $E202 
+keyhndl = $E1D0 
+loop = $E03C 
+menu = $E105 
+mmuinit = $E638 
+mmuloop = $E63F 
+mmutbl = $E649 
+mnutxt = $E250 
+not64 = $E0FC 
+palntsc = $E654 
+retchk = $E1A4 
+retpush = $E1FB 
+scankey = $E150 
+sendasc = $E210 
+sendascdcr = $E223 
+sendcmd = $E208 
+shifted = $E176 
+start = $E000 
+vdc_init = $E752 
+vdc_patch = $E766 
+vdcbyte_w = $E6CB 
+vdcfill = $E6E0 
+vdcpal = $E7B1 
+vdcpat = $E7AE 
+vdcpos_w = $E6D5 
+vdcreg_r = $E6BF 
+vdcreg_w = $E6B3 
+vdcrow_hl = $E703 
+vdcscreenclear = $E689 
+vdcstart = $E736 
+vdctbl = $E773 
+vicclear = $E7F3 
+vicinit = $E7B6 
+vicloop = $E7B8 
+vicrow_hl = $E807 
+victbl = $E7C2 
+
+******* 16 Unused label(s) *******
+@10
+@10
+@20
+@30
+@50
+@60
+@chars
+@clr
+@done
+@drwmnu
+@fill
+@hl
+@hl_off
+@hl_on
+@hloff
+@loop
+@loop
+@loop
+@nofill
+@row_done
+@row_loop
+@rowdone
+@rowloop
+~~~1{00000}
+~~~2{00000}
+~~~charloop{00001}
+~~~endpadding{00001}
+~~~rowloop{00001}
+c64beg
+c64end
+chkcbm
+cmdascdcrend
+cmdascend
+godown
+retchk
+start
+vdcbyte_w
+vdcpal
+vdcpat
+
+******* 48 Variable(s) *******
+BAKCOL  = $000B
+BANK  = $0002
+BODCOL  = $000D
+CHRC  = $000D
+CHRCHL  = $0001
+CMDADDR  = $1203
+D6510  = $0000
+DDRA  = $DC02
+DDRB  = $DC03
+EXTKB  = $D02F
+KRNIMG  = $1202
+KRNIMGS  = $0004
+LASTKEY  = $1201
+MMU_LO  = $D500
+MMUCR  = $FF00
+MMUMCR  = $D505
+PALNTS  = $0A03
+PORTA  = $DC00
+PORTB  = $DC01
+R6510  = $0001
+SHIFTS  = $1200
+tgt_c128  = $0001
+VDC_ALTERNATE  = $0080
+VDC_BAKCOL  = $000E
+VDC_BLACK  = $0000
+VDC_BLINK  = $0010
+VDC_CHRC  = $0001
+VDC_CHRCHL  = $000F
+VDC_DARKBLUE  = $0002
+VDC_DARKCYAN  = $0006
+VDC_DARKGREEN  = $0004
+VDC_DARKPURPLE  = $000A
+VDC_DARKRED  = $0008
+VDC_DARKWHITE  = $000E
+VDC_DARKYELLOW  = $000C
+VDC_LIGHTBLACK  = $0001
+VDC_LIGHTBLUE  = $0003
+VDC_LIGHTCYAN  = $0007
+VDC_LIGHTGREEN  = $0005
+VDC_LIGHTPURPLE  = $000B
+VDC_LIGHTRED  = $0009
+VDC_LIGHTYELLOW  = $000D
+VDC_REVERSE  = $0040
+VDC_UNDERLINE  = $0020
+VDC_WHITE  = $000F
+VDCADR  = $D600
+VDCDAT  = $D601
+VICREG  = $D000
+******* 7 Unused variables(s) *******
+BAKCOL
+BANK
+BODCOL
+CMDADDR
+MMU_LO
+MMUMCR
+tgt_c128
+VDC_ALTERNATE
+VDC_BLACK
+VDC_BLINK
+VDC_CHRC
+VDC_CHRCHL
+VDC_DARKBLUE
+VDC_DARKCYAN
+VDC_DARKGREEN
+VDC_DARKPURPLE
+VDC_DARKRED
+VDC_DARKWHITE
+VDC_DARKYELLOW
+VDC_LIGHTBLACK
+VDC_LIGHTBLUE
+VDC_LIGHTCYAN
+VDC_LIGHTGREEN
+VDC_LIGHTPURPLE
+VDC_LIGHTRED
+VDC_LIGHTYELLOW
+VDC_REVERSE
+VDC_UNDERLINE
+VDC_WHITE
+VICREG
+

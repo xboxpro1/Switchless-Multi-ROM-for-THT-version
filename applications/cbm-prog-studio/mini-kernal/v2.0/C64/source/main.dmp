@@ -1,0 +1,436 @@
+00001  0000             ; ========================================
+00002  0001             ; PROJECT    C64 KERNAL MENU
+00003  0001             ; TARGET     COMMODORE 64
+00004  0001             ; COMMENTS   MODIFIED BY XBOXPRO1
+00005  0001             ; AUTHOR     RETRONINJA
+00006  0001             ; ========================================
+00007  0001             ; VERSION HISTORY
+00008  0001             ; 1.0   FIRST VERSION FOR C64
+00009  0001             ; 1.1   FIXED BUGS
+00010  0001             ; 1.2   IMPROVED MENU ROUTINES AND ADDED A SPRITE
+00011  0001             ; 1.3   CLEANED UP CODE. CLEAR SCREEN TO AVOID GARBAGE DURING RESET
+00012  0001             ; 1.4   ADDED COMMAND FOR C128DCR
+00013  0001             ; 1.5   SCAN KEYS ONCE PER SCREEN REFRESH TO DEBOUNCE KEYS
+00014  0001             ; 2.0   RENAMED SWITCHER, CHANGED ASCII COMMAND, DISABLED SPRITE
+00015  0001             
+00016  0001             CHARSET    2
+00017  0001             NOLOADADDR 
+00018  0001             GENERATETO C64MINIKERNAL.BIN
+00019  0001             
+00020  0001             KRNIMGS    = 10    ; NUMBER OF KERNAL IMAGES IN MENU/ROM 1..10 WHERE 1 WOULD BE QUITE POINTLESS :)
+00021  0001             BODCOL     = $0E   ; BORDER COLOR (C64 DEFAULT = $0E)
+00022  0001             BAKCOL     = $06   ; BACKGROUND COLOR (C64 DEFAULT = $06)
+00023  0001             CHRC       = $0E   ; MNUTXT COLOR (C64 DEFAULT = $0E)
+00024  0001             CHRCHL     = $01   ; MENU HIGHLIGHTEDTEXT COLOR
+00025  0001             
+00026  0001             SHIFTS     = $2000 ; 0 = SHIFT NOT HELD, 1 = SHIFT HELD
+00027  0001             LASTKEY    = $2001 ; LAST KEY PRESSED. USED TO PREVENT KEY REPEAT
+00028  0001             KRNIMG     = $2002
+00029  0001             CMDADDR    = $2003
+00030  0001             VICREG     = $D000
+00031  0001             PORTA      = $DC00
+00032  0001             PORTB      = $DC01
+00033  0001             DDRA       = $DC02
+00034  0001             DDRB       = $DC03
+00035  0001             
+00036  0001             
+00037  0001             *=$E000
+00038  E000             START
+00039  E000  78                    SEI
+00040  E001  20 2F E5              JSR VICINIT
+00041  E004  20 69 E5              JSR VICCLEAR
+00042  E007             
+00043  E007                        ;SETUP CIA PORT DATA DIRECTIONS
+00044  E007  A9 FF                 LDA #%11111111 ; ALL OUTPUTS
+00045  E009  8D 02 DC              STA DDRA
+00046  E00C  A9 00                 LDA #%00000000 ; ALL INPUTS
+00047  E00E  8D 03 DC              STA DDRB
+00048  E011             
+00049  E011  A9 00                 LDA #$00
+00050  E013  8D 00 20              STA SHIFTS
+00051  E016  8D 01 20              STA LASTKEY
+00052  E019  A9 01                 LDA #$01
+00053  E01B  8D 02 20              STA KRNIMG     ; INITIAL KERNAL IMAGE = 1
+00054  E01E             
+00055  E01E  20 27 E0              JSR MENU
+00056  E021  20 5E E0              JSR HILITE
+00057  E024                        ;JSR ENABLESPRITE0
+00058  E024  20 6F E0              JSR SCANKEY
+00059  E027             
+00060  E027             
+00061  E027  A9 17      MENU       LDA #$17
+00062  E029  8D 18 D0              STA $D018       ; SWITCH TO LOWER CASE CHARS
+00063  E02C  A0 00                 LDY #$00
+00064  E02E  B9 47 E1   @DRWMNU    LDA MNUTXT,Y    ; COPY MENU TO SCREEN MEMORY AND SET CHAR COLOR
+00065  E031  99 00 04              STA $0400,Y
+00066  E034  A9 0E                 LDA #CHRC
+00067  E036  99 00 D8              STA $D800,Y
+00068  E039             
+00069  E039  B9 47 E2              LDA MNUTXT+256,Y
+00070  E03C  99 00 05              STA $0500,Y
+00071  E03F  A9 0E                 LDA #CHRC
+00072  E041  99 00 D9              STA $D900,Y
+00073  E044             
+00074  E044  B9 47 E3              LDA MNUTXT+512,Y
+00075  E047  99 00 06              STA $0600,Y
+00076  E04A  A9 0E                 LDA #CHRC
+00077  E04C  99 00 DA              STA $DA00,Y
+00078  E04F             
+00079  E04F  B9 47 E4              LDA MNUTXT+768,Y
+00080  E052  99 00 07              STA $0700,Y
+00081  E055  A9 0E                 LDA #CHRC
+00082  E057  99 00 DB              STA $DB00,Y
+00083  E05A  C8                    INY
+00084  E05B  D0 D1                 BNE @DRWMNU
+00085  E05D  60                    RTS
+00086  E05E             
+00087  E05E             HILITE     
+00088  E05E  48                    PHA
+00089  E05F  8A                    TXA
+00090  E060  48                    PHA
+00091  E061  98                    TYA
+00092  E062  48                    PHA
+00093  E063  AD 02 20              LDA KRNIMG
+00094  E066  20 7D E5              JSR VICROW_HL
+00095  E069  68                    PLA
+00096  E06A  A8                    TAY
+00097  E06B  68                    PLA
+00098  E06C  AA                    TAX
+00099  E06D  68                    PLA
+00100  E06E  60                    RTS
+00101  E06F             
+00102  E06F             
+00103  E06F             
+00104  E06F             ;ENABLESPRITE0
+00105  E06F             ;        LDY #0          ; COPY 64 BYTES OF SPRITE DATA TO RAM
+00106  E06F             ;@COPY   LDA SPRITE0DATA,Y
+00107  E06F             ;        STA $0E00,Y
+00108  E06F             ;        INY
+00109  E06F             ;        CPY #63
+00110  E06F             ;        BNE @COPY
+00111  E06F             ;        LDA #60
+00112  E06F             ;        STA $D000       ; SET SPRITE 0 X POS
+00113  E06F             ;        LDA #255
+00114  E06F             ;        STA $D010       ; ENABLE HIGH BYTE
+00115  E06F             ;        LDA #225
+00116  E06F             ;        STA $D001       ; SET SPRITE 0 Y POS
+00117  E06F             ;        LDA #CHRC
+00118  E06F             ;        STA $D027       ; SET SPRITE 0 COLOR
+00119  E06F             ;        LDA #%00000001  ; ENABLE SPRITE 0
+00120  E06F             ;        STA $D015
+00121  E06F             ;        LDA #$38        ; SPRITE AT $0E00
+00122  E06F             ;        STA $07F8
+00123  E06F             ;        RTS
+00124  E06F             
+00125  E06F             
+00126  E06F             
+00127  E06F             ;DISABLESPRITES
+00128  E06F             ;        LDA #0          ; DISABLE ALL SPRITES
+00129  E06F             ;        STA $D015
+00130  E06F             ;        RTS
+00131  E06F             
+00132  E06F             
+00133  E06F             
+00134  E06F  A9 00      SCANKEY    LDA #$00
+00135  E071  CD 12 D0              CMP $D012       ; WAIT FOR RASTER LINE 0 TO ONLY SCAN KEYS ONCE
+00136  E074  D0 F9                 BNE SCANKEY     ; PER FRAME TO DEBOUNCE KEYS
+00137  E076  8D 00 20              STA SHIFTS      ; CLEAR OLD SHIFT PRESSED INDICATORS
+00138  E079  A8                    TAY             ; CLEAR PRESSED KEY
+00139  E07A                        ; FIND OUT IF ANY SHIFT KEY IS PRESSED AND SET #$01 AT $SHIFTKEY
+00140  E07A                        ; CHECK FOR "RIGHT SHIFT" ROW 6, COLUMN 4
+00141  E07A  A9 BF                 LDA #%10111111  ; SELECT ROW 6
+00142  E07C  8D 00 DC              STA PORTA
+00143  E07F  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00144  E082  29 10                 AND #%00010000  ; CHECK AGAINST COLUMN BIT 4
+00145  E084  F0 0F                 BEQ SHIFTED
+00146  E086                        ; CHECK FOR "LEFT SHIFT" ROW 1, COLUMN 7
+00147  E086  A9 FD                 LDA #%11111101  ; SELECT ROW 1
+00148  E088  8D 00 DC              STA PORTA
+00149  E08B  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00150  E08E  29 80                 AND #%10000000  ; CHECK AGAINST COLUMN BIT 7
+00151  E090  F0 03                 BEQ SHIFTED
+00152  E092  4C 9A E0              JMP CRSRCHK
+00153  E095  A9 01      SHIFTED    LDA #$01
+00154  E097  8D 00 20              STA SHIFTS
+00155  E09A             CRSRCHK    ; CHECK FOR "CURSOR" ROW 0, COLUMN 7
+00156  E09A  A9 FE                 LDA #%11111110  ; SELECT ROW 0
+00157  E09C  8D 00 DC              STA PORTA
+00158  E09F  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00159  E0A2  29 80                 AND #%10000000  ; CHECK AGAINST COLUMN BIT 7
+00160  E0A4  D0 0A                 BNE RETCHK
+00161  E0A6  AE 00 20              LDX SHIFTS
+00162  E0A9  E0 01                 CPX #$01
+00163  E0AB  F0 14                 BEQ CRSRUP
+00164  E0AD  4C C6 E0              JMP CRSRDN
+00165  E0B0             RETCHK     ; CHECK FOR "RETURN" ROW 0, COLUMN BIT 1
+00166  E0B0  A9 FE                 LDA #%11111110  ; SELECT ROW 0
+00167  E0B2  8D 00 DC              STA PORTA
+00168  E0B5  AD 01 DC              LDA PORTB       ; READ COLUMNS
+00169  E0B8  29 02                 AND #%00000010  ; CHECK AGAINST COLUMN BIT 1
+00170  E0BA  D0 0F                 BNE KEYHNDL
+00171  E0BC  A0 03                 LDY #$03
+00172  E0BE  4C CB E0              JMP KEYHNDL
+00173  E0C1  A0 02      CRSRUP     LDY #$02
+00174  E0C3  4C CB E0              JMP KEYHNDL
+00175  E0C6  A0 01      CRSRDN     LDY #$01
+00176  E0C8  4C CB E0              JMP KEYHNDL
+00177  E0CB  CC 01 20   KEYHNDL    CPY LASTKEY
+00178  E0CE  F0 2D                 BEQ KEYDONE     ; SAME KEY AS LAST TIME - DO NOTHING.
+00179  E0D0  C0 01      GODOWN     CPY #$01
+00180  E0D2  D0 0F                 BNE GOUP
+00181  E0D4  AD 02 20              LDA KRNIMG
+00182  E0D7  C9 0A                 CMP #KRNIMGS     ; ALREADY AT END OF LIST?
+00183  E0D9  B0 22                 BCS KEYDONE
+00184  E0DB  F0 20                 BEQ KEYDONE
+00185  E0DD  EE 02 20              INC KRNIMG
+00186  E0E0  20 5E E0              JSR HILITE
+00187  E0E3  C0 02      GOUP       CPY #$02
+00188  E0E5  D0 0F                 BNE RETPUSH
+00189  E0E7  AD 02 20              LDA KRNIMG
+00190  E0EA  C9 01                 CMP #$01        ; ALREADY AT BEGINNING OF LIST
+00191  E0EC  90 0F                 BCC KEYDONE
+00192  E0EE  F0 0D                 BEQ KEYDONE
+00193  E0F0  CE 02 20              DEC KRNIMG
+00194  E0F3  20 5E E0              JSR HILITE
+00195  E0F6  C0 03      RETPUSH    CPY #$03
+00196  E0F8  D0 03                 BNE KEYDONE
+00197  E0FA  4C 03 E1              JMP SENDCMD
+00198  E0FD  8C 01 20   KEYDONE    STY LASTKEY
+00199  E100  4C 6F E0              JMP SCANKEY     ; NOTHING TO DO NOW. KEEP SCANNING KEYS
+00200  E103             
+00201  E103             
+00202  E103             
+00203  E103             SENDCMD
+00204  E103                        ;JSR DISABLESPRITES
+00205  E103  20 69 E5              JSR VICCLEAR
+00206  E106  A2 00                 LDX #$00
+00207  E108  BD 31 E1   SENDASC    LDA CMDASC,X
+00208  E10B  9D 03 20              STA CMDADDR,X   ; WRITE COMMAND STRING TO DATA BUS TO BE PICKED UP BY KERNAL SWITCHER
+00209  E10E  E8                    INX
+00210  E10F  E0 09                 CPX #CMDASCEND-CMDASC   ; LENGTH OF COMMAND STRING
+00211  E111  D0 F5                 BNE SENDASC
+00212  E113  AD 02 20              LDA KRNIMG
+00213  E116  9D 03 20              STA CMDADDR,X   ; SEND SELECTED KERNAL IMAGE NUMBER TO DATA BUS
+00214  E119  A2 00                 LDX #$00
+00215  E11B             SENDASCDCR 
+00216  E11B  BD 3A E1              LDA CMDASCDCR,X
+00217  E11E  9D 03 20              STA CMDADDR,X   ; WRITE COMMAND STRING TO DATA BUS TO BE PICKED UP BY KERNAL SWITCHER
+00218  E121  E8                    INX
+00219  E122  E0 0D                 CPX #CMDASCDCREND-CMDASCDCR   ; LENGTH OF COMMAND STRING
+00220  E124  D0 F5                 BNE SENDASCDCR
+00221  E126  AD 02 20              LDA KRNIMG
+00222  E129  9D 03 20              STA CMDADDR,X   ; SEND SELECTED KERNAL IMAGE NUMBER TO DATA BUS
+00223  E12C  A2 00                 LDX #$00
+00224  E12E  4C 08 E1              JMP SENDASC
+00225  E131             
+00226  E131             
+00227  E131             ; ASCII CBMROM64# COMMAND FOR KERNAL SWITCHER ON DATA BUS
+00228  E131  43 42 4D   CMDASC     BYTE $43, $42, $4D, $52, $4F, $4D, $36, $34, $23
+00229  E13A             CMDASCEND
+00230  E13A             ; ASCII CBMROM128DCR# COMMAND FOR C128DCR COMBO SWITCH
+00231  E13A             CMDASCDCR
+00232  E13A  43 42 4D              BYTE $43, $42, $4D, $52, $4F, $4D, $31, $32, $38, $44, $43, $52, $23
+00233  E147             CMDASCDCREND 
+00234  E147             
+00235  E147             
+00236  E147             MNUTXT     ; MENU LAYOUT
+00237  E147                        ; 6 HEADER ROWS
+00238  E147  20 20 20              TEXT '                                        '
+00239  E16F  20 20 20              TEXT '                CBM C64                 '
+00240  E197  20 20 20              TEXT '                                        '
+00241  E1BF  20 20 20              TEXT '          KERNAL SWITCHER V2.0          '
+00242  E1E7  20 20 20              TEXT '                                        '
+00243  E20F  20 20 20              TEXT '                                        '
+00244  E237                        ; UP TO 10 MENU CHOICES. NUMBER OF SHOWN LINES CONTROLLED BY VALUE IN $KERNALIMAGES
+00245  E237  20 20 31              TEXT '  1. CBM STANDARD (US)                  '
+00246  E25F  20 20 32              TEXT '  2. CBM STANDARD (SWE/FIN)             '
+00247  E287  20 20 33              TEXT '  3. JIFFYDOS 6.01 (US)                 '
+00248  E2AF  20 20 34              TEXT '  4. JIFFYDOS 6.01 (SWE/FIN)            '
+00249  E2D7  20 20 35              TEXT '  5. JAFFYDOS 1.3 (US)                  '
+00250  E2FF  20 20 36              TEXT '  6. JAFFYDOS 1.3 (SWE/FIN)             '
+00251  E327  20 20 37              TEXT '  7. DOLPHINDOS 3.0 (US)                '
+00252  E34F  20 20 38              TEXT '  8. DOLPHINDOS 3.0 (SWE)               '
+00253  E377  20 20 39              TEXT '  9. SPEEDDOS PLUS (US)                 '
+00254  E39F  20 31 30              TEXT ' 10. SPEEDDOS PLUS (SWE)                '
+00255  E3C7                        ; 8 FOOTER ROWS
+00256  E3C7  20 20 20              TEXT '                                        '
+00257  E3EF  20 20 20              TEXT '                                        '
+00258  E417  20 20 20              TEXT '                                        '
+00259  E43F  20 55 13              TEXT ' USE CURSOR UP/DOWN TO SELECT A KERNAL  '
+00260  E467  20 20 20              TEXT '                                        '
+00261  E48F  20 50 12              TEXT ' PRESS RETURN TO CONFIRM                '
+00262  E4B7  20 20 20              TEXT '                                        '
+00263  E4DF  20 20 20              TEXT '                                        '
+00264  E507  20 20 20              TEXT '                                        '
+00265  E52F             
+00266  E52F             
+00267  E52F             ; INITIALIZE VIC REGISTERS
+00268  E52F             VICINIT
+00269  E52F  A2 2F                 LDX #47
+00270  E531             @VICLOOP   
+00271  E531  BD 3A E5              LDA VICTBL-1,X    ; INITIALIZE VIC
+00272  E534  9D FF CF              STA VICREG-1,X
+00273  E537  CA                    DEX
+00274  E538  D0 F7                 BNE @VICLOOP
+00275  E53A  60                    RTS
+00276  E53B             
+00277  E53B  00 00 00   VICTBL     BYTE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ;SPRITES (0-16)
+00278  E54C  9B 37 00              BYTE $9B,55,0,0,0,$08,0,$14,$0F,0,0,0,0,0,0 ;DATA (17-31) RC=311
+00279  E55B  0E 06 01              BYTE BODCOL,BAKCOL,1,2,3,4,0,1,2,3,4,5,6,7 ;32-46
+00280  E569             
+00281  E569             
+00282  E569             VICCLEAR   
+00283  E569  A2 00                 LDX #$00
+00284  E56B  A9 20                 LDA #$20
+00285  E56D             @CLR       ; CLEAR 40 COLUMN SCREEN
+00286  E56D  9D 00 04              STA $0400,X
+00287  E570  9D 00 05              STA $0500,X
+00288  E573  9D 00 06              STA $0600,X
+00289  E576  9D 00 07              STA $0700,X
+00290  E579  E8                    INX
+00291  E57A  D0 F1                 BNE @CLR
+00292  E57C  60                    RTS
+00293  E57D             
+00294  E57D             
+00295  E57D             
+00296  E57D             ; HIGHLIGHT ROW STORED IN A
+00297  E57D             VICROW_HL
+00298  E57D  48                    PHA
+00299  E57E  18                    CLC
+00300  E57F  69 05                 ADC #$05 ; ADD FIVE TO ROW INDEX TO SKIP HEADER ROWS
+00301  E581  85 DC                 STA $DC ; STORE SELECTED ROW
+00302  E583             
+00303  E583  A9 00                 LDA #<$D800
+00304  E585  A0 D8                 LDY #>$D800
+00305  E587  85 DA                 STA $DA         ; START OF DATA LO BYTE
+00306  E589  84 DB                 STY $DB         ; START OF DATA HI BYTE
+00307  E58B             
+00308  E58B  A2 00                 LDX #0
+00309  E58D             @ROW_LOOP
+00310  E58D  A0 00                 LDY #0
+00311  E58F  E4 DC                 CPX $DC
+00312  E591  F0 07                 BEQ @HL_ON
+00313  E593  D0 00                 BNE @HL_OFF
+00314  E595             @HL_OFF
+00315  E595                        ; INACTIVE ROW, TURN OFF HIGHLIGHT
+00316  E595  A9 0E                 LDA #CHRC
+00317  E597  4C 9C E5              JMP @CHARS
+00318  E59A             @HL_ON
+00319  E59A  A9 01                 LDA #CHRCHL
+00320  E59C             @CHARS
+00321  E59C  91 DA                 STA($DA),Y
+00322  E59E  C8                    INY
+00323  E59F  C0 28                 CPY #40
+00324  E5A1  D0 F9                 BNE @CHARS
+00325  E5A3             
+00326  E5A3             @ROW_DONE
+00327  E5A3  E8                    INX
+00328  E5A4  E0 19                 CPX #25
+00329  E5A6  F0 0D                 BEQ @DONE
+00330  E5A8  A5 DA                 LDA $DA
+00331  E5AA  18                    CLC
+00332  E5AB  69 28                 ADC #40
+00333  E5AD  85 DA                 STA $DA
+00334  E5AF  90 DC                 BCC @ROW_LOOP
+00335  E5B1  E6 DB                 INC $DB
+00336  E5B3  D0 D8                 BNE @ROW_LOOP
+00337  E5B5             @DONE
+00338  E5B5  68                    PLA
+00339  E5B6  60                    RTS
+00340  E5B7             
+00341  E5B7             ;SPRITE0DATA
+00342  E5B7             ;INCBIN NINJASPRITE.BIN
+00343  E5B7             ; TEXT "..................@....."
+00344  E5B7             ; TEXT "...@...@.........@@.@..."
+00345  E5B7             ; TEXT "..@.@.@..........@.@@..."
+00346  E5B7             ; TEXT "...@.@...@@@@@@..@@@...."
+00347  E5B7             ; TEXT "....@.@@@@@@@@@@@.@....."
+00348  E5B7             ; TEXT "...@.@@@@@@@@@@@@@......"
+00349  E5B7             ; TEXT "..@..@@@@@@@@@@@@@@....."
+00350  E5B7             ; TEXT ".....@@@@@@@@@@@@@@....."
+00351  E5B7             ; TEXT "....@@.....@@.....@@...."
+00352  E5B7             ; TEXT "....@..@@......@@..@...."
+00353  E5B7             ; TEXT "....@..@@@....@@@..@...."
+00354  E5B7             ; TEXT "....@@.....@@.....@@...."
+00355  E5B7             ; TEXT "....@@@@@@@@@@@@@@@@...."
+00356  E5B7             ; TEXT "....@@@@@@@@@@@@@@@@...."
+00357  E5B7             ; TEXT ".....@@@@@@@@@@@@@@....."
+00358  E5B7             ; TEXT ".....@@@@@@@@@@@@@@....."
+00359  E5B7             ; TEXT "......@@@@@@@@@@@@@....."
+00360  E5B7             ; TEXT ".......@@@@@@@@@@@.@...."
+00361  E5B7             ; TEXT ".........@@@@@@...@.@..."
+00362  E5B7             ; TEXT "...................@.@.."
+00363  E5B7             ; TEXT "....................@@.."
+00364  E5B7             
+00365  E5B7             
+00366  E5B7             *=$FFFC    ; START VECTOR
+00367  FFFC  00 E0 6F              BYTE <START, >START, <SCANKEY, >SCANKEY
+00368  0000             
+
+******* 26 Label(s) *******
+cmdasc = $E131 
+cmdascdcr = $E13A 
+cmdascdcrend = $E147 
+cmdascend = $E13A 
+crsrchk = $E09A 
+crsrdn = $E0C6 
+crsrup = $E0C1 
+godown = $E0D0 
+goup = $E0E3 
+hilite = $E05E 
+keydone = $E0FD 
+keyhndl = $E0CB 
+menu = $E027 
+mnutxt = $E147 
+retchk = $E0B0 
+retpush = $E0F6 
+scankey = $E06F 
+sendasc = $E108 
+sendascdcr = $E11B 
+sendcmd = $E103 
+shifted = $E095 
+start = $E000 
+vicclear = $E569 
+vicinit = $E52F 
+vicrow_hl = $E57D 
+victbl = $E53B 
+
+******* 5 Unused label(s) *******
+@chars
+@clr
+@done
+@drwmnu
+@hl_off
+@hl_on
+@row_done
+@row_loop
+@vicloop
+cmdascdcrend
+cmdascend
+godown
+start
+victbl
+
+******* 15 Variable(s) *******
+BAKCOL  = $0006
+BODCOL  = $000E
+CHRC  = $000E
+CHRCHL  = $0001
+CMDADDR  = $2003
+DDRA  = $DC02
+DDRB  = $DC03
+KRNIMG  = $2002
+KRNIMGS  = $000A
+LASTKEY  = $2001
+PORTA  = $DC00
+PORTB  = $DC01
+SHIFTS  = $2000
+tgt_c64  = $0001
+VICREG  = $D000
+******* -4 Unused variables(s) *******
+BAKCOL
+BODCOL
+CMDADDR
+tgt_c64
+VICREG
+
