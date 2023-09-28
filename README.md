@@ -11,7 +11,7 @@ After a long search on the internet, there is finally the perfect ROM switcher.
 
 <img src="images\cbm-multirom-transparent.png" alt="3D rendering" width="800"/><br/>
 
-A switchless multi-ROM for 2364 ROM (24-pin) and 27128/27256 ROM (28-pin) type applications. 
+A switchless multi-ROM for 2364 ROM (24-pin) and 27128/27256 ROM (28-pin) type applications. <br/>
 The switch is controlled by an MCU that is picking up predefined magic words on the data bus.  
 
 Example use cases:
