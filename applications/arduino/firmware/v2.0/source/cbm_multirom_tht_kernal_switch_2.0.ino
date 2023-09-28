@@ -87,7 +87,7 @@ bool inmenu = false;
 
 #ifdef LED
   byte blinkCounter = 0;
-  long ledtiming = 0;
+  unsigned long ledtiming = 0;
 #endif
 
 // interrupt vector handling
