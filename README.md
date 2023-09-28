@@ -6,7 +6,7 @@ This is a fork, rework and combination of two repositories from RetroNynjah.
 
 <https://github.com/RetroNynjah/Switchless-Multi-ROM-for-27128-27256>
 
-I would like to thank RetroNynjah for the brilliant idea and excellent work.
+I would like to thank RetroNynjah for the brilliant idea and excellent work.<br/>
 After a long search on the internet, there is finally the perfect ROM switcher.
 
 <img src="images\cbm-multirom-transparent.png" alt="3D rendering" width="800"/><br/>
