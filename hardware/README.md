@@ -3,8 +3,9 @@
 
 This is a fork, rework and combination of two repositories from RetroNynjah.
 
+<img src="..\images\cbm-multirom-smd-front.png" alt="3D rendering" width="600"/><br/><br/>
 <img src="..\images\cbm-multirom-front-assembled.png" alt="3D rendering" width="600"/><br/>
 
 Here are the files to make the hardware and the shematic.
 
-Check the Hardware-Info.pdf in the hardware folder for a general technical description and build instructions.
+Check the Hardware-Info.pdf and SMD-Hardware-Info.pdf in the hardware folder for a general technical description and build instructions.
