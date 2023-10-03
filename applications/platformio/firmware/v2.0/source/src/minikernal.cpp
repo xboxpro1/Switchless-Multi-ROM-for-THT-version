@@ -21,7 +21,7 @@
 //  C128 - (28pin ROM, 16k ROM, flashbank -> 1)
 //  C128DCR - (28pin ROM, 32k ROM, flashbank -> 2)
 
-#define CBMID C64	                                                                        // set CBM ID
+#define CBMID C64C                                                                          // set CBM ID
 
 // enable LED for blinking
 #define LED                                                                                 // enable LED, commend out to disable
@@ -71,15 +71,12 @@
 #endif
 
 // variables
-
 byte commandLength = sizeof(searchString);
 byte savedROM;
 byte bytesCorrect = 0;
 byte dataByte = 0x00;
 long restorepressed;
 volatile bool rwstate;
-//volatile bool pin9state;
-//volatile bool pin10state;
 bool restorestate;
 bool resetstate;
 bool restoreholding = false;
@@ -91,18 +88,11 @@ bool inmenu = false;
 #endif
 
 // interrupt vector handling
-
-ISR(PCINT0_vect)                                              // handle pin change interrupt for Port B0 - B5, Pin 8 to 13
-{
+ISR(PCINT0_vect){                                             // handle pin change interrupt for Port B0 - B5, Pin 8 to 13
   rwstate = FastGPIO::Pin<rwPin>::isInputHigh();              // read state of rw pin (D13); indicate that data on port d is available
-  //pin9state = FastGPIO::Pin<pin9>::isInputHigh();           // read state of pin9 (D9)
-  //pin10state = FastGPIO::Pin<pin10>::isInputHigh();         // read state of pin10 (D10)
 }
 
-// interrupt vector handling end
-
 // functions
-
 void pciSetup(byte pin) {                                     // enable Pin Change Interrupt for requested pin
   *digitalPinToPCMSK(pin) |= bit(digitalPinToPCMSKbit(pin));  // enable pin
   PCIFR |= bit(digitalPinToPCICRbit(pin));                    // clear any outstanding interrupt
@@ -131,7 +121,7 @@ void switchrom(int romnumber, bool doreset){                  // ROM switch func
       inmenu = true;
     }
     else {
-      inmenu = false;                                         // if romnumber =! 0 we are in listen mode, listen for restore key
+      inmenu = false;                                         // if romnumber =! 0 we are in operational mode, listen for restore key
       #ifdef LED
         blinkCounter = romnumber << 1;                        // set blink counter to toggle the LED, if romnumber is 2, we have to toggle 4 times, 2 LOW, 2 HIGH, bitshift left 1 is like multiply by 2, bitshift is faster
       #endif
@@ -161,9 +151,7 @@ void switchrom(int romnumber, bool doreset){                  // ROM switch func
              }
      }
      else {                                                           // blink counter is 0, no blinking any more, reset blink timing, indicate if restore key is pressed
-        if (ledtiming > 0){
-            ledtiming = 0;                                            // reset LED blink timing
-        }
+        ledtiming = 0;                                                // reset LED blink timing
         if (restoreholding) {                                         // turn LED off when restore is pressed
               FastGPIO::Pin<ledPin>::setOutputValueLow();             // LED off
         }
@@ -174,8 +162,7 @@ void switchrom(int romnumber, bool doreset){                  // ROM switch func
  }
 #endif
 
-// functions end
-
+// setup
 void setup() {                                              // setup
 
   FastGPIO::Pin<resetPin>::setOutputLow();                  // set reset pin (low), keep reset active (low) during setup, connected to reset signal
@@ -198,9 +185,13 @@ void setup() {                                              // setup
   FastGPIO::Pin<pin9>::setInputPulledUp();                  // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
   FastGPIO::Pin<pin10>::setInputPulledUp();                 // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
 
-  //FastGPIO::Pin<pin9>::setInput();                        // connected to ROM O!E signal
-  //FastGPIO::Pin<pin10>::setInput();                       // connected to ROM A13 signal
-      
+  #ifdef PBVARIANT
+    FastGPIO::Pin<pin23>::setInputPulledUp();               // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
+    FastGPIO::Pin<pin24>::setInputPulledUp();               // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
+    FastGPIO::Pin<pin25>::setInputPulledUp();               // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
+    FastGPIO::Pin<pin26>::setInputPulledUp();               // according to the atmel data sheet it is recommended to ensure that unused pins have a defined level
+  #endif
+
   savedROM = EEPROM.read(0);                                // retrieve last used ROM from ATMEGA EEPROM and switch ROM using address lines A13-A18
   if (savedROM > maxROM){                                   // if saved ROM > maxROM, reset to minikernal menu ROM 0
     savedROM = 0;
@@ -212,11 +203,10 @@ void setup() {                                              // setup
   delay(500);                                               // give system some time to finish reset before entering loop
 
   pciSetup(rwPin);                                          // enable pin change interrupt on rw pin connected to r!w signal
-  //pciSetup(pin9);                                         // enable pin change interrupt on pin9 connected to ROM O!E signal
-  //pciSetup(pin10);                                        // enable pin change interrupt on pin10 connected to ROM A13 signal
+  
 }                                                           // setup end
 
-
+// main loop
 void loop() {                                               // main loop
   
   if (inmenu) {                                             // while in menu mode, listen for command string
@@ -243,7 +233,7 @@ void loop() {                                               // main loop
     }
    
   } 
-      else {                                                           // while in listen mode, listen for restore key
+      else {                                                           // while in operational mode, listen for restore key
         restorestate = FastGPIO::Pin<restorePin>::isInputHigh();       // check if restore key is pressed
         if (restorestate == LOW) {                                     // restore key pressed
             if (restoreholding == false) {                             // start counting restore key hold time
