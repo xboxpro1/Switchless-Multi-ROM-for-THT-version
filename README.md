@@ -27,7 +27,7 @@ Check the General-Info.pdf for a general description and BOM.
 
 Check the Application-Info.pdf in the applications folder for examples on how to use it for the use cases above.
 
-Check the Hardware-Info.pdf in the hardware folder for a general technical description and build instructions.
+Check the Hardware-Info.pdf and SMD-Hardware-Info.pdf in the hardware folder for a general technical description and build instructions.
 
 A short video that shows how it works can be seen here. 
 <https://youtu.be/isT9-QBMzEc?si=csgdmX4p8TZYezGX>
