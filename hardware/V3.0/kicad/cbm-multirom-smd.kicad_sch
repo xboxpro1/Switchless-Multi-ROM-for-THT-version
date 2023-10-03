@@ -1324,9 +1324,6 @@
   (junction (at 226.06 73.66) (diameter 0) (color 0 0 0 0)
     (uuid 0ea7447c-fdc9-43bf-a63e-9dd2c230beb4)
   )
-  (junction (at 167.64 111.76) (diameter 0) (color 0 0 0 0)
-    (uuid 24acffc1-44f7-4956-8911-fc136a1413b4)
-  )
   (junction (at 105.41 101.6) (diameter 0) (color 0 0 0 0)
     (uuid 31a14ea1-c2a6-42e8-b814-c1b7371142c2)
   )
@@ -1342,11 +1339,14 @@
   (junction (at 207.01 86.36) (diameter 0) (color 0 0 0 0)
     (uuid ba61ee56-a462-44f5-896f-d412eda3b56d)
   )
+  (junction (at 167.64 111.76) (diameter 0) (color 0 0 0 0)
+    (uuid d577b017-2d36-4c0a-a79a-0907f15003cb)
+  )
   (junction (at 182.88 63.5) (diameter 0) (color 0 0 0 0)
     (uuid d89a8e86-1c3d-4582-b6fd-3014af2bc7ea)
   )
   (junction (at 170.18 111.76) (diameter 0) (color 0 0 0 0)
-    (uuid dcc45120-6d54-4219-bc08-68d12b1beccc)
+    (uuid fbfdd1e7-0fcd-40c9-889c-3302d616e2e7)
   )
 
   (no_connect (at 52.07 77.47) (uuid 22a4af8a-427f-44ca-ab42-cd18cb121b1c))
@@ -1553,10 +1553,6 @@
     (stroke (width 0) (type default))
     (uuid 06190566-9ac6-4b99-90a4-f2ab9f8e5330)
   )
-  (wire (pts (xy 170.18 111.76) (xy 172.72 111.76))
-    (stroke (width 0) (type default))
-    (uuid 06d11265-aa3e-4415-aae1-932d58d6c348)
-  )
   (bus (pts (xy 199.39 50.8) (xy 199.39 53.34))
     (stroke (width 0) (type default))
     (uuid 08084e0b-4615-43f6-a90f-42d0c2646ea8)
@@ -1656,6 +1652,10 @@
     (stroke (width 0) (type default))
     (uuid 30682432-dd23-4a07-99bf-397edbf62246)
   )
+  (wire (pts (xy 170.18 111.76) (xy 172.72 111.76))
+    (stroke (width 0) (type default))
+    (uuid 31245b9b-5d43-4aa3-afe0-89460a6a094b)
+  )
   (wire (pts (xy 20.32 46.99) (xy 31.75 46.99))
     (stroke (width 0) (type default))
     (uuid 31d3f920-6d70-473f-8394-8cdcaf48d200)
@@ -1733,10 +1733,6 @@
   (wire (pts (xy 64.77 156.21) (xy 72.39 156.21))
     (stroke (width 0) (type default))
     (uuid 4353ced9-e5f3-4577-bc8b-ed9faffd4a6e)
-  )
-  (wire (pts (xy 170.18 109.22) (xy 170.18 111.76))
-    (stroke (width 0) (type default))
-    (uuid 438a020f-a3b5-41d1-9246-6975bef420d2)
   )
   (wire (pts (xy 52.07 67.31) (xy 54.61 67.31))
     (stroke (width 0) (type default))
@@ -1865,6 +1861,10 @@
     (stroke (width 0) (type default))
     (uuid 624619f1-0358-4bd8-a712-69be51db9b42)
   )
+  (wire (pts (xy 170.18 109.22) (xy 170.18 111.76))
+    (stroke (width 0) (type default))
+    (uuid 627f7b46-fee1-4696-945d-2dde79e2e29b)
+  )
   (wire (pts (xy 203.2 69.85) (xy 203.2 72.39))
     (stroke (width 0) (type default))
     (uuid 64b40b42-2218-461d-b60a-831260bc6758)
@@ -1964,10 +1964,6 @@
   (wire (pts (xy 182.88 82.55) (xy 214.63 82.55))
     (stroke (width 0) (type default))
     (uuid 97f0f90f-99db-4107-bd20-f36189f64954)
-  )
-  (wire (pts (xy 167.64 109.22) (xy 167.64 111.76))
-    (stroke (width 0) (type default))
-    (uuid 9953f4a7-617f-4e6f-a5a9-ee0796cea6d3)
   )
   (wire (pts (xy 201.93 53.34) (xy 213.36 53.34))
     (stroke (width 0) (type default))
@@ -2134,10 +2130,6 @@
     (uuid c5e591c9-864d-4a47-bea6-0a40f6ce72b9)
   )
 
-  (wire (pts (xy 167.64 111.76) (xy 168.91 111.76))
-    (stroke (width 0) (type default))
-    (uuid c6b72149-2828-4169-897a-6e8492afb56b)
-  )
   (wire (pts (xy 20.32 41.91) (xy 31.75 41.91))
     (stroke (width 0) (type default))
     (uuid c6dfb340-dd74-4bf2-b27b-e6935e795437)
@@ -2145,6 +2137,10 @@
   (wire (pts (xy 153.67 111.76) (xy 157.48 111.76))
     (stroke (width 0) (type default))
     (uuid c8b2e445-d322-4fd6-8a73-73531f5c9f4e)
+  )
+  (wire (pts (xy 167.64 111.76) (xy 168.91 111.76))
+    (stroke (width 0) (type default))
+    (uuid c93c0d2a-e2f2-49d0-9594-b162882fdca2)
   )
   (wire (pts (xy 87.63 95.25) (xy 90.17 95.25))
     (stroke (width 0) (type default))
@@ -2195,6 +2191,10 @@
   (wire (pts (xy 52.07 57.15) (xy 90.17 57.15))
     (stroke (width 0) (type default))
     (uuid dbbc4d23-f2d5-4255-9242-138b1548b9f7)
+  )
+  (wire (pts (xy 167.64 109.22) (xy 167.64 111.76))
+    (stroke (width 0) (type default))
+    (uuid dbdfe9f5-2e6f-40ef-9250-ffa6e96b7ca3)
   )
   (wire (pts (xy 64.77 163.83) (xy 72.39 163.83))
     (stroke (width 0) (type default))
@@ -2895,14 +2895,14 @@
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
-  (global_label "A11" (shape output) (at 72.39 147.32 0) (fields_autoplaced)
+  (global_label "A12" (shape output) (at 72.39 147.32 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e520781d-74dc-44f7-89ad-60b2497229ab)
     (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 78.8828 147.32 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
-  (global_label "A12" (shape output) (at 72.39 137.16 0) (fields_autoplaced)
+  (global_label "A11" (shape output) (at 72.39 137.16 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e693b574-b887-48e2-abed-636518737c75)
     (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 78.8828 137.16 0)
@@ -2969,7 +2969,7 @@
     )
     (pin "1" (uuid 4e79bd91-c394-4c83-a233-c192a80436f5))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR03") (unit 1)
         )
@@ -3013,7 +3013,7 @@
     (pin "8" (uuid 34c2bbbf-c1c9-4477-8e7e-3278bbcfffa9))
     (pin "9" (uuid 939885c7-5c31-49dc-a21e-548cec0eb3e3))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "IC3") (unit 1)
         )
@@ -3038,7 +3038,7 @@
     )
     (pin "1" (uuid 64c6bdee-1998-4fab-9b71-3854ddf7ce99))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR024") (unit 1)
         )
@@ -3063,7 +3063,7 @@
     )
     (pin "1" (uuid f6786559-48ba-448d-a814-905fd723294a))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR023") (unit 1)
         )
@@ -3088,7 +3088,7 @@
     )
     (pin "1" (uuid 0645a0a3-80bc-487d-94d3-d4a3e06bb8a8))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR08") (unit 1)
         )
@@ -3114,7 +3114,7 @@
     (pin "1" (uuid a2c8ba7a-7d2b-4cce-9c68-0c594fe2aebc))
     (pin "2" (uuid 61e6733c-153c-4197-8e59-de49c8d627e7))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C6") (unit 1)
         )
@@ -3139,7 +3139,7 @@
     )
     (pin "1" (uuid 865a431d-e000-4bf5-a30a-44de4b98429a))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR016") (unit 1)
         )
@@ -3165,7 +3165,7 @@
     (pin "1" (uuid f91ba980-20c6-4053-a1cf-920fe8ac60f7))
     (pin "2" (uuid bc6ff7c3-b6ca-4a93-b4c2-f7f37354f2e1))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "D23") (unit 1)
         )
@@ -3191,7 +3191,7 @@
     (pin "1" (uuid d4c9da5e-8776-4be7-aba0-07847307ceca))
     (pin "2" (uuid e54d2576-24f5-45b5-b98f-8cb3d1cf3847))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "GND1") (unit 1)
         )
@@ -3216,7 +3216,7 @@
     )
     (pin "1" (uuid d7f6e0d7-5a37-44da-81c7-ab3c61f866f2))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR019") (unit 1)
         )
@@ -3242,7 +3242,7 @@
     (pin "1" (uuid deba5230-5e77-4a2d-9510-c2c4f5226dc4))
     (pin "2" (uuid 91133e02-01c2-448f-8c13-54e670670da9))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "R1") (unit 1)
         )
@@ -3253,10 +3253,10 @@
   (symbol (lib_id "PCM_Capacitor_AKL:C_0805") (at 176.53 111.76 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2afab693-39c3-4a10-b460-26bd097e315c)
-    (property "Reference" "C4" (at 175.26 113.03 90)
+    (property "Reference" "C4" (at 175.26 115.57 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "100nF" (at 184.15 113.03 90)
+    (property "Value" "100nF" (at 184.15 115.57 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (at 180.34 110.7948 0)
@@ -3268,7 +3268,7 @@
     (pin "1" (uuid 322f650a-48b6-489d-bdc5-31fe69b45321))
     (pin "2" (uuid d774f908-2f7c-4bfb-aee6-88bb49cf8927))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C4") (unit 1)
         )
@@ -3294,7 +3294,7 @@
     (pin "1" (uuid 687f44a4-ff79-42e8-ac84-b2a3903acaa7))
     (pin "2" (uuid c6d4f5ac-ef43-4f78-a9c3-812471aa973e))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "D24") (unit 1)
         )
@@ -3319,7 +3319,7 @@
     )
     (pin "1" (uuid 796a42ed-50bc-467c-8d8f-46fe89172eca))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR015") (unit 1)
         )
@@ -3345,7 +3345,7 @@
     (pin "1" (uuid d0d173e3-676f-4269-93df-e5ee39f1f53f))
     (pin "2" (uuid f0b4efa5-cd4e-4fd5-8390-89662ee6dd35))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C5") (unit 1)
         )
@@ -3371,7 +3371,7 @@
     (pin "1" (uuid 944ef88c-ddfb-4e9a-800a-a220723e2115))
     (pin "2" (uuid 34fcf8b3-9ab0-469b-8551-901208978137))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C2") (unit 1)
         )
@@ -3396,7 +3396,7 @@
     )
     (pin "1" (uuid e7b3cacb-1c36-4e22-b33d-21bd73bf4908))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR018") (unit 1)
         )
@@ -3421,7 +3421,7 @@
     )
     (pin "1" (uuid e77db917-68b2-4469-8bbf-d587b9a0c1a6))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR09") (unit 1)
         )
@@ -3446,7 +3446,7 @@
     )
     (pin "1" (uuid a2b5c1c1-9ace-4cfc-b49b-700dff9ba59c))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR013") (unit 1)
         )
@@ -3471,7 +3471,7 @@
     )
     (pin "1" (uuid 1a7f7e75-ecf4-4f8d-8b24-ca8dd1da3906))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR012") (unit 1)
         )
@@ -3496,7 +3496,7 @@
     )
     (pin "1" (uuid e3397cf0-9cb9-4b45-a85c-3ce80af93e9a))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR06") (unit 1)
         )
@@ -3522,7 +3522,7 @@
     (pin "1" (uuid 6022f83a-4725-4818-a279-de3462d0a0fa))
     (pin "2" (uuid c4249737-fee7-4f95-b0f6-36ad58c1913b))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "D9") (unit 1)
         )
@@ -3547,7 +3547,7 @@
     )
     (pin "1" (uuid 78aa5863-2b6d-4f45-9d76-7d1c2bed6727))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR01") (unit 1)
         )
@@ -3572,7 +3572,7 @@
     )
     (pin "1" (uuid 95f6d376-bda3-4765-b613-3fceeecf2c85))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR021") (unit 1)
         )
@@ -3597,7 +3597,7 @@
     )
     (pin "1" (uuid 5fc15e58-9e55-4e8f-b00d-b04c3c756b59))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR04") (unit 1)
         )
@@ -3624,7 +3624,7 @@
     (pin "2" (uuid 73e63d0b-e682-4144-be3c-7097af3b7e26))
     (pin "3" (uuid 561bdb14-52f0-463c-b1de-e564674fbfdd))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP1") (unit 1)
         )
@@ -3635,10 +3635,10 @@
   (symbol (lib_id "PCM_Capacitor_AKL:C_0805") (at 161.29 111.76 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 6b46bb43-7da4-4d5c-8ee9-dcfe4a6e7eb2)
-    (property "Reference" "C3" (at 162.56 113.03 90)
+    (property "Reference" "C3" (at 162.56 115.57 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "100nF" (at 153.67 113.03 90)
+    (property "Value" "100nF" (at 153.67 115.57 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (at 157.48 112.7252 0)
@@ -3650,7 +3650,7 @@
     (pin "1" (uuid e6c1d7f7-a038-437c-bca3-f9d9045b395b))
     (pin "2" (uuid 2c4377b2-82de-4aab-a0ef-b3255121a38c))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C3") (unit 1)
         )
@@ -3675,7 +3675,7 @@
     )
     (pin "1" (uuid b1e99b8e-5082-4614-8abd-47635f6e294b))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR02") (unit 1)
         )
@@ -3706,7 +3706,7 @@
     (pin "6" (uuid ac05c57a-3c29-4fc1-b67f-75c690d3395e))
     (pin "7" (uuid a2737161-a8c8-4006-9049-f033e8805054))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "Con1") (unit 1)
         )
@@ -3732,7 +3732,7 @@
     (pin "1" (uuid a9c75e53-73d7-4f52-8a8f-5bf02bb06f81))
     (pin "2" (uuid a90daa38-92fe-415a-ab18-919fed756505))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "C1") (unit 1)
         )
@@ -3758,7 +3758,7 @@
     (pin "1" (uuid 8547a1cb-6774-4a4e-8ec8-82d515e36b10))
     (pin "2" (uuid 58ac0f1e-a645-4345-9328-727cfa72900d))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP4") (unit 1)
         )
@@ -3784,7 +3784,7 @@
     (pin "1" (uuid 741e5d63-e270-482e-91f7-6cff92779d8a))
     (pin "2" (uuid 154efa93-926f-4bdd-a20b-68a7682bc6cd))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "Q1") (unit 1)
         )
@@ -3809,7 +3809,7 @@
     )
     (pin "1" (uuid aace4ece-ba7a-4756-88f2-23fb0f972b21))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR05") (unit 1)
         )
@@ -3838,7 +3838,7 @@
     (pin "4" (uuid b7895a03-166a-47f7-aac7-670ba509a76b))
     (pin "5" (uuid 04418b2a-8f76-40a3-b82c-d6cd6f0dde97))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "IC4") (unit 1)
         )
@@ -3897,7 +3897,7 @@
     (pin "8" (uuid 6392816d-d5dc-4b76-a107-e06c2a1f0eb9))
     (pin "9" (uuid c8f11964-1ae6-40c0-8345-bda9786b990d))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "IC1") (unit 1)
         )
@@ -3927,7 +3927,7 @@
     (pin "2" (uuid ef69375b-21cd-4e37-9603-e0b1aa20d28b))
     (pin "3" (uuid 0865306a-842b-498a-8fa3-4fe25424df80))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP6") (unit 1)
         )
@@ -3952,7 +3952,7 @@
     )
     (pin "1" (uuid 5073b01f-9bb5-4cc5-b35d-8235262eb3bc))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR020") (unit 1)
         )
@@ -3978,7 +3978,7 @@
     (pin "1" (uuid 6afe8fbb-0a95-4f52-ba8f-95514415147f))
     (pin "2" (uuid a4118283-52a4-4e70-ab23-bc830d57b63c))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "R2") (unit 1)
         )
@@ -4003,7 +4003,7 @@
     )
     (pin "1" (uuid 62154b63-65a2-42ad-9130-fe831315ca89))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR022") (unit 1)
         )
@@ -4028,7 +4028,7 @@
     )
     (pin "1" (uuid dfcce9fa-ba01-4bb6-98ee-50d99dec7525))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR011") (unit 1)
         )
@@ -4053,7 +4053,7 @@
     )
     (pin "1" (uuid 73575729-52d7-4dec-8884-719896aab1d3))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR07") (unit 1)
         )
@@ -4112,7 +4112,7 @@
     (pin "8" (uuid 8b4abbef-dd8b-47ea-a9d2-d0c06802b22b))
     (pin "9" (uuid da350a5b-cd48-4c8a-b25f-4ed43ca0e1cb))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "IC2") (unit 1)
         )
@@ -4138,7 +4138,7 @@
     (pin "1" (uuid d1360ae3-956c-4fe8-b467-c42c01e64071))
     (pin "2" (uuid 89ef7a50-2aaa-4d5b-bab8-75cf1ba56856))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP3") (unit 1)
         )
@@ -4163,7 +4163,7 @@
     )
     (pin "1" (uuid ee6a0c17-c0e3-46e1-b6c7-16eb3163e28e))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR014") (unit 1)
         )
@@ -4189,7 +4189,7 @@
     (pin "1" (uuid 02de1b71-b070-4adb-b7d3-0f1ead3c397b))
     (pin "2" (uuid ea881af0-758e-4ff0-8f4c-2715c169dd0d))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP7") (unit 1)
         )
@@ -4216,7 +4216,7 @@
     (pin "2" (uuid 54506c97-ee1c-4e87-8c86-cfec7f9d31ec))
     (pin "3" (uuid efe790c0-7148-407f-afdb-fcaabbe7f9f3))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP5") (unit 1)
         )
@@ -4241,7 +4241,7 @@
     )
     (pin "1" (uuid a460503e-79f2-41ff-b80e-b82e6b232418))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR010") (unit 1)
         )
@@ -4266,7 +4266,7 @@
     )
     (pin "1" (uuid 12ab9296-bf39-43af-8722-42bac82cd3d2))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "#PWR017") (unit 1)
         )
@@ -4293,7 +4293,7 @@
     (pin "2" (uuid 4426dc26-de3a-44d2-a40c-9b03462c520c))
     (pin "3" (uuid 26d6a262-4e87-40bc-813a-0317e45bfa8e))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "JP2") (unit 1)
         )
@@ -4345,7 +4345,7 @@
     (pin "8" (uuid 175cd051-1661-41d4-bab9-25656f7fa5c8))
     (pin "9" (uuid 8217a66c-e03e-4634-8bc3-2bfd887b7892))
     (instances
-      (project "cbm-multirom-smd"
+      (project "cbm-multirom"
         (path "/247d2779-7c57-46da-a157-82e04da56a2e"
           (reference "ROM1") (unit 1)
         )
